@@ -43,3 +43,15 @@ footer{border-top:1px solid var(--b);padding:32px 0 48px;color:var(--t3);font-si
 footer .w{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}footer a{color:var(--t2)}
 .legal{padding:40px 0 80px;max-width:720px}.legal h1{font-size:34px;text-align:left;margin:0 0 20px}.legal p{color:var(--t2)}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+.badge{display:inline-block;font-size:13px;font-weight:700;border-radius:99px;padding:3px 12px;margin-bottom:12px;background:var(--a);color:#06090c}
+.card{display:flex;flex-direction:column}.card .btn{text-align:center;margin-top:auto}.card .note{margin-top:12px}
+.card.hl{border-width:2px}
+.guar{font-size:15px;color:var(--t);border-top:1px solid var(--b);padding-top:16px;margin:0 0 24px}
+.note.c{text-align:center;margin-top:24px}
+.sample .big{font-size:18px;margin:0 0 20px}.sample .tag{font-size:16px}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{text-align:left;padding:10px 12px 10px 0;border-top:1px solid var(--b);vertical-align:top}th{color:var(--t3);font-weight:600;font-size:13px}
+td:last-child,th:last-child{white-space:nowrap}td:last-child{color:var(--w);font-weight:700}
+.pt{color:var(--t2);margin:20px 0 0}
+@media(max-width:560px){table{min-width:480px}}
