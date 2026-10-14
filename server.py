@@ -272,7 +272,8 @@ def page(msg, lang="en", form=None):
 
 
 ROUTES = {"/": "index.html", "/check": "check.html", "/fr/check": "fr/check.html", "/nl/check": "nl/check.html",
-          "/legal": "legal.html", "/privacy": "privacy.html"}
+          "/legal": "legal.html", "/privacy": "privacy.html", "/terms": "terms.html", "/refund": "refund.html",
+          "/about": "about.html"}
 CSP = ("default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; script-src 'self'; connect-src 'self'; "
        "base-uri 'self'; form-action 'self' https://buy.stripe.com mailto:; frame-ancestors 'none'")
 
