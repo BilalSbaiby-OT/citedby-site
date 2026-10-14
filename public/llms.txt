@@ -4,8 +4,8 @@
 
 ## Pages
 - [Home, prices and guarantees](https://citedby.eu/): what we do, prices, FAQ
-- [Free check](https://citedby.eu/check): enter a shop URL, get a ChatGPT answer check (also /fr/check, /nl/check)
-- [Sample audit](https://citedby.eu/sample-audit): a full anonymised audit with all 16 raw answers
+- [Free check](https://citedby.eu/check): paste a shop URL and see in about 10 seconds which AI crawlers the site lets in and what a plain page fetch finds, with a fix for each problem; no email needed. From there you can ask for the free 16-answer ChatGPT mini-audit by email (also /fr/check, /nl/check)
+- [Sample audit](https://citedby.eu/sample-audit): an anonymised mini-audit of a Belgian coffee roaster, run 13 Oct 2026: the sites ChatGPT linked in each of 16 answers, what it says about the shop by name, and the fixes
 - [Study](https://citedby.eu/data/study-chatgpt-buyer-questions): 127 ChatGPT answers to 64 buyer questions in 5 EU niches, 13 and 14 Oct 2026, with method and CSV
 - [Data by niche](https://citedby.eu/data): who ChatGPT linked, question by question
 
