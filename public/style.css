@@ -120,3 +120,7 @@ footer a{color:var(--navy);display:inline-block;padding:var(--s2) 0}
 .row .guar p{font:400 14px/1.5 var(--sans);color:var(--muted);margin:0}
 .row .after{margin:var(--s6) 0 0;max-width:40em}
 ol.fx{font:400 18px/1.55 var(--serif);padding-left:24px}ol.fx li{margin-bottom:var(--s4)}
+
+/* RES-560: below 1360px the pricing column is too narrow for copy plus buy column; stack the buy block */
+@media(max-width:1360px){.row{grid-template-columns:1fr}.row .buy{text-align:left;min-width:0}}
+@media(min-width:701px) and (max-width:1360px){.row.hl{padding-right:var(--s6)}}
