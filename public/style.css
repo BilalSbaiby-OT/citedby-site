@@ -48,7 +48,7 @@ p{margin:0 0 var(--s4)}
 .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:var(--s3) var(--s8);font:600 17px/1.2 var(--sans);text-decoration:none;border-radius:0;border:2px solid var(--navy)}
 .btn.p{background:var(--navy);color:#fff}.btn.p:hover{background:#000;border-color:#000}
 .btn.g{background:#fff;color:var(--navy)}.btn.g:hover{background:var(--wash)}
-.link{font:400 17px var(--sans)}
+.link{font:400 17px var(--sans);display:inline-block;padding:var(--s2) 0}
 
 /* How it works is a real sequence, so it is numbered */
 .steps{list-style:none;padding:0;margin:0;counter-reset:s}
