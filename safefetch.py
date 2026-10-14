@@ -4,13 +4,14 @@ Rules: http/https only, ports 80/443 only, no userinfo, every resolved address m
 the socket connects to the address we validated (no second DNS lookup, so no rebinding), every redirect hop is
 re-validated, bodies and wall-clock time are capped.
 """
-import http.client, ipaddress, socket, ssl, threading, time
+import http.client, ipaddress, os, socket, ssl, threading, time
 from urllib.parse import urlsplit, urljoin
 
 UA = "CitedByCheck/1.0 (+https://citedby.eu/check)"
 MAX_BODY = 1_500_000
 MAX_REDIRECTS = 4
 CTX = ssl.create_default_context()
+CTX.post_handshake_auth = True  # same ClientHello as http.client's HTTPSConnection; Shopify answers 429 to the bare one from OpenSSL 3.5 (prod)
 
 
 class Blocked(Exception):
@@ -67,7 +68,8 @@ class _Conn(http.client.HTTPConnection):
         self._ip, self._tls = ip, tls
 
     def connect(self):
-        self.raw = self.sock = socket.create_connection((self._ip, self.port), self.timeout)  # plain TCP socket: the deadline timer shuts it down
+        self.sock = socket.create_connection((self._ip, self.port), self.timeout)
+        self.raw = socket.socket(fileno=os.dup(self.sock.fileno()))  # own fd for the deadline timer: http.client closes self.sock on 'Connection: close' responses, shutdown() on a dup still cuts the connection
         if self._tls:
             self.sock = CTX.wrap_socket(self.sock, server_hostname=self.host)
 
@@ -113,12 +115,13 @@ def fetch(url, deadline=None, max_body=MAX_BODY, accept_lang="en"):
                 if left <= 0:
                     c.close()
                     return {"status": 0, "url": cur, "body": "", "error": "timeout"}
-                c.raw.settimeout(min(left, 8))
                 part = r.read1(min(65536, max_body - got))
                 if not part:
                     break
                 chunks.append(part)
                 got += len(part)
+            if time.time() >= deadline:  # the timer cut the connection mid-body: a partial page is not a result
+                return {"status": 0, "url": cur, "body": "", "error": "timeout"}
             c.close()
             return {"status": r.status, "url": cur, "body": b"".join(chunks).decode("utf-8", "replace"), "error": ""}
         except (TimeoutError, socket.timeout):
@@ -128,4 +131,6 @@ def fetch(url, deadline=None, max_body=MAX_BODY, accept_lang="en"):
         finally:
             timer.cancel()
             c.close()
+            if c.raw:
+                c.raw.close()
     return {"status": 0, "url": cur, "body": "", "error": "too_many_redirects"}
