@@ -11,6 +11,7 @@ UA = "CitedByCheck/1.0 (+https://citedby.eu/check)"
 MAX_BODY = 1_500_000
 MAX_REDIRECTS = 4
 CTX = ssl.create_default_context()
+CTX.post_handshake_auth = True  # same ClientHello as http.client's HTTPSConnection; Shopify answers 429 to the bare one from OpenSSL 3.5 (prod)
 
 
 class Blocked(Exception):

@@ -121,6 +121,9 @@ class SSRF(unittest.TestCase):
         self.assertNotEqual(k("a+x@example.com"), k("b@example.com")); self.assertEqual(k("a+x@example.com"), "a@example.com")
         self.assertNotEqual(k("a.b@example.com"), k("ab@example.com"))                       # dots count outside Gmail
 
+    def test_tls_context_matches_http_client(self):                                         # prod OpenSSL 3.5 + Shopify: bare ClientHello gets 429
+        self.assertTrue(safefetch.CTX.post_handshake_auth)
+
     def test_https_connection_close(self):                                                  # regression: live checks all failed as "unreachable" over HTTPS
         import ssl, subprocess, tempfile
         d = tempfile.mkdtemp(); crt, key = d + "/c.pem", d + "/k.pem"
