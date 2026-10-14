@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Render public/check.html, public/fr/check.html, public/nl/check.html from tools/i18n.py."""
-import html, json, os, sys
+import hashlib, html, json, os, sys
 sys.path.insert(0, os.path.dirname(__file__))
 from i18n import S, COUNTRIES, NICHES, PRICE_URL
 ROOT = os.path.join(os.path.dirname(__file__), "..", "public")
 E = html.escape
+def ver(name):
+    return hashlib.sha256(open(os.path.join(ROOT, name), "rb").read()).hexdigest()[:8]
 
 def opts(values, labels, sel=None):
     return "".join(f'<option value="{v}"{" selected" if v == sel else ""}>{E(labels[v])}</option>' for v in values)
@@ -25,7 +27,7 @@ def render(lang):
 <meta property="og:title" content="{E(t["title"])}"><meta property="og:description" content="{E(t["desc"])}"><meta property="og:url" content="https://citedby.eu{t["path"]}"><meta property="og:type" content="website">
 <meta name="theme-color" content="#0b0d10">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/style.css?v={ver("style.css")}">
 </head><body>
 <div class="w"><header class="top"><a class="logo" href="/">Cited<span>By</span></a><nav><a href="{nav[1]}">{nav[0]}</a><a href="{nav[3]}">{nav[2]}</a><span class="lsw">{switch}</span></nav></header>
 <main class="chk">
@@ -44,7 +46,7 @@ def render(lang):
 </main></div>
 <footer><div class="w"><span>© 2026 CitedBy · <a href="mailto:hello@citedby.eu">hello@citedby.eu</a></span><span><a href="/legal">Legal notice</a> · <a href="/privacy">Privacy</a></span></div></footer>
 <script type="application/json" id="i18n">{data}</script>
-<script src="/check.js"></script>
+<script src="/check.js?v={ver("check.js")}"></script>
 </body></html>
 '''
 

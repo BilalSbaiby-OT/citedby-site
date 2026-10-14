@@ -6,13 +6,13 @@
   "top": [
    {
     "name": "OR Coffee Roasters",
-    "host": "orcoffee.com",
-    "named": 12
+    "host": "orcoffee.be",
+    "named": 11
    },
    {
     "name": "Caffenation",
     "host": "caffenation.be",
-    "named": 9
+    "named": 8
    },
    {
     "name": "MOK Specialty Coffee",
@@ -22,12 +22,12 @@
    {
     "name": "Wide Awake Coffee",
     "host": "wideawake.coffee",
-    "named": 7
+    "named": 6
    },
    {
-    "name": "Torrefactory",
-    "host": "torrefactory.coffee",
-    "named": 3
+    "name": "Andy Roasters",
+    "host": "andy-roasters.be",
+    "named": 4
    }
   ]
  },
@@ -38,7 +38,7 @@
   "top": [
    {
     "name": "OR Coffee Roasters",
-    "host": "orcoffee.com",
+    "host": "orcoffee.be",
     "named": 9
    },
    {
@@ -70,8 +70,18 @@
   "top": [
    {
     "name": "Belleville Brûlerie",
-    "host": "cafesbelleville.com",
-    "named": 7
+    "host": "bellevillebrulerie.com",
+    "named": 6
+   },
+   {
+    "name": "Lomi",
+    "host": "lomi.coffee",
+    "named": 6
+   },
+   {
+    "name": "Coffao",
+    "host": "coffao.com",
+    "named": 5
    },
    {
     "name": "Coutume",
@@ -91,14 +101,24 @@
   "questions": 8,
   "top": [
    {
-    "name": "Kodama Paris",
-    "host": "kodamaparis.com",
-    "named": 2
+    "name": "Palais des Thés",
+    "host": "palaisdesthes.com",
+    "named": 10
    },
    {
-    "name": "Le Temple du The",
-    "host": "letempleduthe.fr",
-    "named": 2
+    "name": "Dammann Frères",
+    "host": "dammann.fr",
+    "named": 5
+   },
+   {
+    "name": "Mariage Frères",
+    "host": "mariagefreres.com",
+    "named": 4
+   },
+   {
+    "name": "Kusmi Tea",
+    "host": "kusmitea.com",
+    "named": 3
    }
   ]
  },
@@ -115,7 +135,7 @@
    {
     "name": "Novoma",
     "host": "novoma.com",
-    "named": 6
+    "named": 5
    },
    {
     "name": "Aime",
@@ -123,9 +143,14 @@
     "named": 4
    },
    {
-    "name": "Nutripure",
-    "host": "nutripure.fr",
-    "named": 2
+    "name": "Greenwhey",
+    "host": "greenwhey.com",
+    "named": 4
+   },
+   {
+    "name": "Oenobiol",
+    "host": "oenobiol.com",
+    "named": 3
    }
   ]
  },
@@ -140,18 +165,23 @@
     "named": 14
    },
    {
-    "name": "Hypnia",
-    "host": "hypnia.fr",
+    "name": "Emma",
+    "host": "emma.fr",
     "named": 8
    },
    {
-    "name": "Emma",
-    "host": "emma-matelas.fr",
-    "named": 8
+    "name": "Slome",
+    "host": "slome.fr",
+    "named": 5
    },
    {
     "name": "Kipli",
     "host": "kipli.com",
+    "named": 4
+   },
+   {
+    "name": "Mello",
+    "host": "mello-matelas.fr",
     "named": 4
    }
   ]
@@ -196,27 +226,27 @@
    {
     "name": "Cloud Picker Coffee",
     "host": "cloudpickercoffee.ie",
-    "named": 9
+    "named": 8
    },
    {
     "name": "3fe Coffee",
     "host": "3fe.com",
+    "named": 7
+   },
+   {
+    "name": "Typo Coffee",
+    "host": "typo.ie",
+    "named": 7
+   },
+   {
+    "name": "Bear Market",
+    "host": "bearmarket.ie",
     "named": 6
    },
    {
     "name": "Calendar Coffee",
     "host": "calendarcoffee.ie",
     "named": 5
-   },
-   {
-    "name": "Bell Lane Coffee",
-    "host": "belllane.ie",
-    "named": 5
-   },
-   {
-    "name": "Ponaire Coffee",
-    "host": "ponaire.ie",
-    "named": 4
    }
   ]
  }

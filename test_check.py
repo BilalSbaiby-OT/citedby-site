@@ -2,7 +2,7 @@
 import json, os, threading, unittest, urllib.request, urllib.error, socket
 from http.server import BaseHTTPRequestHandler, HTTPServer
 os.environ.setdefault("OPTIN_SECRET", "x" * 40); os.environ.setdefault("BASE_URL", "http://t"); import tempfile; os.environ["DATA_DIR"] = tempfile.mkdtemp()
-os.environ["MAIL_OUTBOX"] = "/tmp/cbt-outbox.jsonl"; os.environ["CHECK_PER_IP_HOUR"] = "1000"; os.environ["CHECK_PER_HOST_HOUR"] = "1000"
+os.environ["MAIL_OUTBOX"] = "/tmp/cbt-outbox.jsonl"; os.environ["CHECK_PER_IP_HOUR"] = "1000"; os.environ["CHECK_PER_HOST_HOUR"] = "1000"; os.environ["REQ_PER_IP_HOUR"] = "1000"
 import safefetch, doorcheck, server
 
 
@@ -59,6 +59,89 @@ class SSRF(unittest.TestCase):
         finally:
             safefetch.addr_ok, safefetch.parse = orig, orig_parse; srv.shutdown()
 
+    def test_embedded_ipv4_blocked(self):                                                    # S4
+        for ip in ("64:ff9b::7f00:1", "::7f00:1", "2002:7f00:1::", "64:ff9b::a9fe:a9fe"): self.assertFalse(safefetch.addr_ok(ip), ip)
+
+    def test_trickle_deadline(self):                                                         # H5: 1 byte/s server must not pin a slot
+        import time
+        def trickle(s):
+            s.send_response(200); s.send_header("Content-Length", "100000"); s.end_headers()
+            try:
+                for _ in range(60): s.wfile.write(b"a"); s.wfile.flush(); time.sleep(1)
+            except OSError: pass
+        srv = HTTPServer(("127.0.0.1", 0), type("T", (BaseHTTPRequestHandler,), {"do_GET": trickle, "log_message": lambda *a: None}))
+        threading.Thread(target=srv.serve_forever, daemon=True).start(); port = srv.server_port
+        orig, orig_parse = safefetch.addr_ok, safefetch.parse
+        safefetch.addr_ok = lambda ip: True
+        safefetch.parse = lambda u: (safefetch.urlsplit(u), port)
+        try:
+            t0 = time.time(); r = safefetch.fetch(f"http://127.0.0.1:{port}/", deadline=time.time() + 3)
+            self.assertLess(time.time() - t0, 6); self.assertEqual(r["error"], "timeout")
+        finally: safefetch.addr_ok, safefetch.parse = orig, orig_parse
+
+    def _raw_trickle(self, payload):
+        """Server that sends `payload` one byte per 0.5 s, never finishing the status line or headers."""
+        import time
+        ls = socket.socket(); ls.bind(("127.0.0.1", 0)); ls.listen(5); port = ls.getsockname()[1]
+        def serve():
+            while True:
+                try: c, _ = ls.accept()
+                except OSError: return
+                def drip(c=c):
+                    try:
+                        c.recv(4096)
+                        for b in payload: c.send(bytes([b])); time.sleep(0.5)
+                    except OSError: pass
+                threading.Thread(target=drip, daemon=True).start()
+        threading.Thread(target=serve, daemon=True).start()
+        return ls, port
+
+    def _timed_fetch(self, payload):
+        import time
+        ls, port = self._raw_trickle(payload)
+        orig, orig_parse = safefetch.addr_ok, safefetch.parse
+        safefetch.addr_ok = lambda ip: True
+        safefetch.parse = lambda u: (safefetch.urlsplit(u), port)
+        try:
+            t0 = time.time(); r = safefetch.fetch(f"http://127.0.0.1:{port}/", deadline=time.time() + 3)
+            return time.time() - t0, r
+        finally: safefetch.addr_ok, safefetch.parse = orig, orig_parse; ls.close()
+
+    def test_trickle_status_line(self):                                                     # R1: deadline holds before the headers arrive
+        dt, r = self._timed_fetch(b"HTTP/1.1 200 OK" + b"x" * 500)
+        self.assertLess(dt, 4); self.assertEqual(r["error"], "timeout")
+
+    def test_trickle_headers(self):                                                         # R1
+        dt, r = self._timed_fetch(b"HTTP/1.1 200 OK\r\n" + b"X-A: b\r\n" * 200)
+        self.assertLess(dt, 4); self.assertEqual(r["error"], "timeout")
+
+    def test_inbox_key(self):                                                               # R2
+        k = server.inbox_key
+        self.assertEqual({k("victim@gmail.com"), k("Victim+1@gmail.com"), k("v.ictim@googlemail.com")}, {"victim@gmail.com"})
+        self.assertNotEqual(k("a+x@example.com"), k("b@example.com")); self.assertEqual(k("a+x@example.com"), "a@example.com")
+        self.assertNotEqual(k("a.b@example.com"), k("ab@example.com"))                       # dots count outside Gmail
+
+    def test_tls_context_matches_http_client(self):                                         # prod OpenSSL 3.5 + Shopify: bare ClientHello gets 429
+        self.assertTrue(safefetch.CTX.post_handshake_auth)
+
+    def test_https_connection_close(self):                                                  # regression: live checks all failed as "unreachable" over HTTPS
+        import ssl, subprocess, tempfile
+        d = tempfile.mkdtemp(); crt, key = d + "/c.pem", d + "/k.pem"
+        subprocess.run(["openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-keyout", key, "-out", crt, "-days", "1", "-subj", "/CN=localhost"], check=True, capture_output=True)
+        h = type("S", (BaseHTTPRequestHandler,), {"protocol_version": "HTTP/1.1", "log_message": lambda *a: None,
+            "do_GET": lambda s: (s.send_response(200), s.send_header("Connection", "close"), s.end_headers(), s.wfile.write(b"hello https"))})
+        srv = HTTPServer(("127.0.0.1", 0), h); sc = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER); sc.load_cert_chain(crt, key)
+        srv.socket = sc.wrap_socket(srv.socket, server_side=True)
+        threading.Thread(target=srv.serve_forever, daemon=True).start(); port = srv.server_port
+        cc = ssl.create_default_context(); cc.check_hostname = False; cc.load_verify_locations(crt)
+        orig, orig_parse, orig_ctx = safefetch.addr_ok, safefetch.parse, safefetch.CTX
+        safefetch.addr_ok = lambda ip: True; safefetch.CTX = cc
+        safefetch.parse = lambda u: (safefetch.urlsplit(u), port)
+        try:
+            r = safefetch.fetch(f"https://127.0.0.1:{port}/")
+            self.assertEqual((r["status"], r["body"], r["error"]), (200, "hello https", ""))
+        finally: safefetch.addr_ok, safefetch.parse, safefetch.CTX = orig, orig_parse, orig_ctx; srv.shutdown()
+
     def test_body_cap(self):
         srv = HTTPServer(("127.0.0.1", 0), type("B", (BaseHTTPRequestHandler,), {"do_GET": lambda s: (s.send_response(200), s.end_headers(), s.wfile.write(b"a" * 5_000_000)), "log_message": lambda *a: None}))
         threading.Thread(target=srv.serve_forever, daemon=True).start(); port = srv.server_port
@@ -104,12 +187,16 @@ class Api(unittest.TestCase):
         self.assertEqual(self.post("/api/request", {**d, "website": "spam.com"})[0], 200)   # honeypot: silent
         self.assertEqual(self.post("/api/request", d)[0], 200)
         self.assertEqual(self.post("/api/request", d)[0], 200)                              # duplicate within 10 min: no second mail
-        mails = [json.loads(l) for l in open("/tmp/cbt-outbox.jsonl")]
+        mails = [m for m in (json.loads(l) for l in open("/tmp/cbt-outbox.jsonl")) if "a@example.com" in m["to"]]
         self.assertEqual(len(mails), 1); self.assertIn("a@example.com", mails[0]["to"])
         self.assertIn("Confirmez", mails[0]["subject"]); self.assertIn("List-Unsubscribe", mails[0]["headers"])
         import re
         link = re.search(r"(http://t/api/confirm\?t=\S+)", mails[0]["text"]).group(1).replace("http://t", self.base)
-        self.assertEqual(urllib.request.urlopen(link).status, 200)
+        r = urllib.request.urlopen(link); self.assertEqual(r.status, 200)
+        self.assertEqual(r.headers["Cache-Control"], "no-store")                              # H3: /api never cached
+        self.assertIsNone(server._db.execute("SELECT confirmed_ts FROM request WHERE email='a@example.com'").fetchone()[0])  # GET (mail scanner) does not confirm
+        self.assertIn(b"<form", r.read())
+        self.assertEqual(urllib.request.urlopen(urllib.request.Request(link, b"", method="POST")).status, 200)
         row = server._db.execute("SELECT confirmed_ts FROM request WHERE email='a@example.com'").fetchone(); self.assertIsNotNone(row[0])
         self.assertEqual(self.get_status(self.base + "/api/confirm?t=bad.token"), 400)
         unsub = re.search(r"(http://t/api/unsubscribe\?t=\S+)", mails[0]["text"]).group(1).replace("http://t", self.base)
@@ -117,6 +204,25 @@ class Api(unittest.TestCase):
         self.assertIsNotNone(server._db.execute("SELECT 1 FROM request WHERE email='a@example.com'").fetchone())
         self.assertEqual(urllib.request.urlopen(urllib.request.Request(unsub, b"", method="POST")).status, 200)
         self.assertIsNone(server._db.execute("SELECT 1 FROM request WHERE email='a@example.com'").fetchone())
+
+    def test_mail_cap_per_address(self):                                                     # H4: 2 mails per address per 24 h across URLs
+        for host in ("example.com", "example.org", "example.net", "iana.org"):
+            self.assertEqual(self.post("/api/request", {"email": "cap@example.com", "url": host, "lang": "en", "consent": True})[0], 200)
+        self.assertEqual(len([l for l in open("/tmp/cbt-outbox.jsonl") if "cap@example.com" in l]), server.MAILS_PER_ADDR_DAY)  # outbox is shared across tests; filtered by recipient
+
+    def test_mail_cap_same_inbox(self):                                                      # R2: +tag and Gmail dots share one cap
+        for addr in ("victim@gmail.com", "victim+1@gmail.com", "v.ictim@gmail.com", "vi.ctim+z@gmail.com"):
+            self.assertEqual(self.post("/api/request", {"email": addr, "url": "example.com", "lang": "en", "consent": True})[0], 200)
+        sent = [l for l in open("/tmp/cbt-outbox.jsonl") if "ictim" in l]
+        self.assertEqual(len(sent), server.MAILS_PER_ADDR_DAY)
+
+    def test_clean_url_fallback(self):                                                       # S3: nginx try_files parity
+        os.makedirs(os.path.join(server.SITE_DIR, "zz-test"), exist_ok=True)
+        open(os.path.join(server.SITE_DIR, "zz-test.html"), "w").write("x"); open(os.path.join(server.SITE_DIR, "zz-test", "index.html"), "w").write("y")
+        try:
+            self.assertEqual(self.get_status(self.base + "/zz-test"), 200)
+        finally:
+            os.remove(os.path.join(server.SITE_DIR, "zz-test.html")); os.remove(os.path.join(server.SITE_DIR, "zz-test", "index.html")); os.rmdir(os.path.join(server.SITE_DIR, "zz-test"))
 
     def get_status(self, url):
         try: return urllib.request.urlopen(url).status
