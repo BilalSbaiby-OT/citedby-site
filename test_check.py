@@ -234,6 +234,18 @@ class Api(unittest.TestCase):
         for p in ("/../server.py", "/%2e%2e/server.py", "/..%2fserver.py", "/data/snapshots.json"):
             self.assertEqual(self.get_status(self.base + p), 404, p)
 
+    def test_data_pages_routing(self):
+        for p in ("/data", "/data/cafe-france", "/data/study-chatgpt-buyer-questions", "/data/cafe-france.csv", "/data/citedby-study-2026-10.pdf"):
+            self.assertEqual(self.get_status(self.base + p), 200, p)
+        class NoRedirect(urllib.request.HTTPRedirectHandler):
+            def redirect_request(self, *a, **k): return None
+        try: urllib.request.build_opener(NoRedirect).open(self.base + "/data/"); code = 200
+        except urllib.error.HTTPError as e: code, loc = e.code, e.headers.get("Location")
+        self.assertEqual((code, loc), (301, "/data"))
+        with urllib.request.urlopen(self.base + "/data/cafe-france.csv") as r: self.assertTrue(r.headers["Content-Type"].startswith("text/csv"))
+        for p in ("/data/../server.py", "/data/..%2fserver.py", "/data/%2e%2e/server", "/data/missing"):
+            self.assertEqual(self.get_status(self.base + p), 404, p)
+
     def test_rate_limit(self):
         server.CHECK_PER_IP = 2; server._hits.clear()
         codes = [self.post("/api/check", {"url": "127.0.0.1"})[0] for _ in range(3)]

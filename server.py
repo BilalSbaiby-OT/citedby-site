@@ -301,6 +301,8 @@ class H(BaseHTTPRequestHandler):
             self.wfile.write(body)
 
     def static(self, path):
+        if path == "/data/":
+            return self.out(301, b"", extra={"Location": "/data"})
         rel = ROUTES.get(path) or path.lstrip("/")
         base = os.path.realpath(SITE_DIR)
         full = os.path.realpath(os.path.join(base, rel))
