@@ -47,7 +47,7 @@
     var ol = el("ol", "rank");
     s.top.forEach(function (x) { var li = el("li"); li.appendChild(el("span", null, x.name)); li.appendChild(el("b", null, fmt(T.snap_count, { n: x.named, runs: s.runs }))); ol.appendChild(li); });
     box.appendChild(ol);
-    box.appendChild(el("p", "note", fmt(T.snap_cap, { runs: s.runs, questions: s.questions, date: s.date })));
+    box.appendChild(el("p", "note", fmt(T.snap_cap, { runs: s.runs, questions: s.questions, date: s.date, asked: s.runs === 2 * s.questions ? T.asked_twice : T.asked_most })));
     if (s.other_language) box.appendChild(el("p", "note", fmt(T.snap_lang, { lang: D.langs[s.other_language] })));
     resEl.appendChild(box);
   }
