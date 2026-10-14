@@ -1,0 +1,223 @@
+{
+ "BE|fr|coffee": {
+  "date": "2026-10-13",
+  "runs": 16,
+  "questions": 8,
+  "top": [
+   {
+    "name": "OR Coffee Roasters",
+    "host": "orcoffee.com",
+    "named": 12
+   },
+   {
+    "name": "Caffenation",
+    "host": "caffenation.be",
+    "named": 9
+   },
+   {
+    "name": "MOK Specialty Coffee",
+    "host": "mokcoffee.be",
+    "named": 8
+   },
+   {
+    "name": "Wide Awake Coffee",
+    "host": "wideawake.coffee",
+    "named": 7
+   },
+   {
+    "name": "Torrefactory",
+    "host": "torrefactory.coffee",
+    "named": 3
+   }
+  ]
+ },
+ "BE|nl|coffee": {
+  "date": "2026-10-13",
+  "runs": 16,
+  "questions": 8,
+  "top": [
+   {
+    "name": "OR Coffee Roasters",
+    "host": "orcoffee.com",
+    "named": 9
+   },
+   {
+    "name": "Caffenation",
+    "host": "caffenation.be",
+    "named": 7
+   },
+   {
+    "name": "MOK Specialty Coffee",
+    "host": "mokcoffee.be",
+    "named": 6
+   },
+   {
+    "name": "WAY Coffee Roasters",
+    "host": "way.gent",
+    "named": 4
+   },
+   {
+    "name": "De Witte Zwaan",
+    "host": "dewittezwaan.be",
+    "named": 3
+   }
+  ]
+ },
+ "FR|fr|coffee": {
+  "date": "2026-10-14",
+  "runs": 16,
+  "questions": 8,
+  "top": [
+   {
+    "name": "Belleville Brûlerie",
+    "host": "cafesbelleville.com",
+    "named": 7
+   },
+   {
+    "name": "Coutume",
+    "host": "coutumecafe.com",
+    "named": 5
+   },
+   {
+    "name": "Terres de Café",
+    "host": "terresdecafe.com",
+    "named": 5
+   }
+  ]
+ },
+ "FR|fr|tea": {
+  "date": "2026-10-13",
+  "runs": 16,
+  "questions": 8,
+  "top": [
+   {
+    "name": "Kodama Paris",
+    "host": "kodamaparis.com",
+    "named": 2
+   },
+   {
+    "name": "Le Temple du The",
+    "host": "letempleduthe.fr",
+    "named": 2
+   }
+  ]
+ },
+ "FR|fr|beauty": {
+  "date": "2026-10-14",
+  "runs": 16,
+  "questions": 8,
+  "top": [
+   {
+    "name": "Nutri&Co",
+    "host": "nutriandco.com",
+    "named": 6
+   },
+   {
+    "name": "Novoma",
+    "host": "novoma.com",
+    "named": 6
+   },
+   {
+    "name": "Aime",
+    "host": "aime.co",
+    "named": 4
+   },
+   {
+    "name": "Nutripure",
+    "host": "nutripure.fr",
+    "named": 2
+   }
+  ]
+ },
+ "FR|fr|mattress": {
+  "date": "2026-10-14",
+  "runs": 16,
+  "questions": 8,
+  "top": [
+   {
+    "name": "Tediber",
+    "host": "tediber.com",
+    "named": 14
+   },
+   {
+    "name": "Hypnia",
+    "host": "hypnia.fr",
+    "named": 8
+   },
+   {
+    "name": "Emma",
+    "host": "emma-matelas.fr",
+    "named": 8
+   },
+   {
+    "name": "Kipli",
+    "host": "kipli.com",
+    "named": 4
+   }
+  ]
+ },
+ "FR|fr|supplements": {
+  "date": "2026-10-14",
+  "runs": 16,
+  "questions": 8,
+  "top": [
+   {
+    "name": "Nutripure",
+    "host": "nutripure.fr",
+    "named": 11
+   },
+   {
+    "name": "Nutri&Co",
+    "host": "nutriandco.com",
+    "named": 9
+   },
+   {
+    "name": "Novoma",
+    "host": "novoma.com",
+    "named": 7
+   },
+   {
+    "name": "Arkopharma",
+    "host": "arkopharma.com",
+    "named": 4
+   },
+   {
+    "name": "Dynveo",
+    "host": "dynveo.fr",
+    "named": 4
+   }
+  ]
+ },
+ "IE|en|coffee": {
+  "date": "2026-10-13",
+  "runs": 15,
+  "questions": 8,
+  "top": [
+   {
+    "name": "Cloud Picker Coffee",
+    "host": "cloudpickercoffee.ie",
+    "named": 9
+   },
+   {
+    "name": "3fe Coffee",
+    "host": "3fe.com",
+    "named": 6
+   },
+   {
+    "name": "Calendar Coffee",
+    "host": "calendarcoffee.ie",
+    "named": 5
+   },
+   {
+    "name": "Bell Lane Coffee",
+    "host": "belllane.ie",
+    "named": 5
+   },
+   {
+    "name": "Ponaire Coffee",
+    "host": "ponaire.ie",
+    "named": 4
+   }
+  ]
+ }
+}
