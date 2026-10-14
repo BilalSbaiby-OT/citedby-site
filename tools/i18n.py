@@ -7,7 +7,7 @@ S = {
 "en": dict(
   path="/check", title="Free AI crawler check for your online shop | CitedBy",
   desc="Paste your shop URL. In 10 seconds see whether AI crawlers can read your shop and what product data they find, with a fix for each problem. No email needed.",
-  h1="Can ChatGPT read your shop? Check it in 10 seconds.", lede="Paste your shop address. You see which AI crawlers your site lets in, what a plain page fetch finds, and the fix for each problem. No email needed.",
+  h1="Can ChatGPT read your shop? Check it in 10 seconds.", lede="Paste your shop address. You see which AI crawlers your site lets in, what a plain page fetch finds, and the fix for each problem. No email needed. After the check you can ask for the 16-answer mini-audit by email.",
   f_url="Shop address", f_url_ph="yourshop.com", f_country="Country you sell in", f_lang="Language of your buyers", f_niche="What you sell", go="Check my shop",
   note="Plain HTTP fetch of your homepage, robots.txt, llms.txt and one product page. No JavaScript is run. We do not store the result.",
   countries=dict(BE="Belgium", FR="France", NL="Netherlands", IE="Ireland", DE="Germany", ES="Spain", GB="United Kingdom", OTHER="Other"),
@@ -41,7 +41,7 @@ S = {
 "fr": dict(
   path="/fr/check", title="Test gratuit des robots IA pour votre boutique en ligne | CitedBy",
   desc="Collez l'adresse de votre boutique. En 10 secondes : les robots IA peuvent-ils la lire, quelles données produit trouvent-ils, avec une correction pour chaque problème. Sans e-mail.",
-  h1="ChatGPT peut-il lire votre boutique ? Vérifiez en 10 secondes.", lede="Collez l'adresse de votre boutique. Vous voyez quels robots IA votre site laisse entrer, ce qu'une simple requête y trouve, et la correction pour chaque problème. Sans e-mail.",
+  h1="ChatGPT peut-il lire votre boutique ? Vérifiez en 10 secondes.", lede="Collez l'adresse de votre boutique. Vous voyez quels robots IA votre site laisse entrer, ce qu'une simple requête y trouve, et la correction pour chaque problème. Sans e-mail. Après le test, vous pouvez demander par e-mail le mini-audit de 16 réponses.",
   f_url="Adresse de la boutique", f_url_ph="votreboutique.fr", f_country="Pays où vous vendez", f_lang="Langue de vos acheteurs", f_niche="Ce que vous vendez", go="Vérifier ma boutique",
   note="Requête HTTP simple sur votre page d'accueil, robots.txt, llms.txt et une page produit. Aucun JavaScript n'est exécuté. Nous ne conservons pas le résultat.",
   countries=dict(BE="Belgique", FR="France", NL="Pays-Bas", IE="Irlande", DE="Allemagne", ES="Espagne", GB="Royaume-Uni", OTHER="Autre"),
@@ -75,7 +75,7 @@ S = {
 "nl": dict(
   path="/nl/check", title="Gratis AI-crawlercheck voor je webshop | CitedBy",
   desc="Plak het adres van je webshop. In 10 seconden zie je of AI-crawlers je shop kunnen lezen en welke productdata ze vinden, met een oplossing per probleem. Zonder e-mail.",
-  h1="Kan ChatGPT je webshop lezen? Check het in 10 seconden.", lede="Plak het adres van je webshop. Je ziet welke AI-crawlers je site binnenlaat, wat een gewone paginaopvraging vindt en de oplossing voor elk probleem. Zonder e-mail.",
+  h1="Kan ChatGPT je webshop lezen? Check het in 10 seconden.", lede="Plak het adres van je webshop. Je ziet welke AI-crawlers je site binnenlaat, wat een gewone paginaopvraging vindt en de oplossing voor elk probleem. Zonder e-mail. Na de check kun je per e-mail de miniaudit met 16 antwoorden aanvragen.",
   f_url="Adres van je webshop", f_url_ph="jouwshop.be", f_country="Land waar je verkoopt", f_lang="Taal van je kopers", f_niche="Wat je verkoopt", go="Check mijn shop",
   note="Gewone HTTP-opvraging van je homepage, robots.txt, llms.txt en één productpagina. Er wordt geen JavaScript uitgevoerd. We bewaren het resultaat niet.",
   countries=dict(BE="België", FR="Frankrijk", NL="Nederland", IE="Ierland", DE="Duitsland", ES="Spanje", GB="Verenigd Koninkrijk", OTHER="Ander land"),
