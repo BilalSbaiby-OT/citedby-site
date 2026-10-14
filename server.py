@@ -207,7 +207,8 @@ def handle_request(data, ip):
         return True
     email = str(data.get("email", "")).strip().lower()
     lang = data.get("lang") if data.get("lang") in LANGS else "en"
-    if not EMAIL_RE.match(email) or len(email) > 320 or data.get("consent") is not True:
+    domain = email.rpartition("@")[2]
+    if not EMAIL_RE.match(email) or len(email) > 320 or domain.startswith(".") or domain.endswith(".") or ".." in domain or data.get("consent") is not True:
         return False
     try:
         root = doorcheck.normalize(str(data.get("url", "")))
