@@ -15,43 +15,43 @@
     return fmt(T[key] || "", { bots: (c.blocked || []).join(", "), words: c.words, found: (c.found || []).join(", ") });
   }
   function render(res) {
-    resEl.textContent = "";
+    resEl.textContent = ""; var col = el("div", "col"), margin = el("aside", "margin"); margin.appendChild(el("b", null, T.m_h)); margin.appendChild(document.createTextNode(T.method));
+    resEl.appendChild(col); resEl.appendChild(margin);
     var checks = res.checks || [], pass = checks.filter(function (c) { return c.status === "pass"; }).length;
     var counted = checks.filter(function (c) { return c.status !== "na" && c.status !== "info"; }).length;
-    var h = el("h2", null, T.r_h + " " + res.site.replace(/^https?:\/\//, "")); resEl.appendChild(h);
-    resEl.appendChild(el("p", "sum", fmt(T.r_sum, { pass: pass, total: counted })));
-    if (res.redirected_to) resEl.appendChild(el("p", "note", fmt(T.redirected, { url: res.redirected_to.replace(/^https?:\/\//, "") })));
+    var h = el("h2", null, T.r_h + " " + res.site.replace(/^https?:\/\//, "")); col.appendChild(h);
+    col.appendChild(el("p", "sum", fmt(T.r_sum, { pass: pass, total: counted })));
+    if (res.redirected_to) col.appendChild(el("p", "note", fmt(T.redirected, { url: res.redirected_to.replace(/^https?:\/\//, "") })));
     var ul = el("ul", "cl");
     checks.forEach(function (c) {
       var li = el("li", "ck-" + c.status), head = el("div", "ch");
-      head.appendChild(el("span", "pill " + c.status, T["s_" + c.status] || c.status));
+      head.appendChild(el("span", "st " + c.status, T["s_" + c.status] || c.status));
       head.appendChild(el("b", null, T["t_" + c.id]));
       li.appendChild(head); li.appendChild(el("p", null, checkText(c, res)));
       if (c.id === "product_schema" && res.product_page) li.appendChild(el("p", "note", fmt(T.on_page, { url: res.product_page.replace(/^https?:\/\//, "") })));
       ul.appendChild(li);
     });
-    resEl.appendChild(ul);
-    resEl.appendChild(el("p", "note", T.method));
-    snapshot(res.snapshot);
-    mailBox(res);
+    col.appendChild(ul);
+    snapshot(res.snapshot, col);
+    mailBox(res, col);
     var fx = el("div", "fixbox"); fx.appendChild(el("h2", null, T.fix_h)); fx.appendChild(el("p", null, T.fix_p));
-    var a = el("a", "btn p", T.fix_go); a.href = D.price_url; a.rel = "noopener";
+    var a = el("a", "btn g", T.fix_go); a.href = D.price_url; a.rel = "noopener";
     a.addEventListener("click", function () { try { navigator.sendBeacon("/api/event", new Blob([JSON.stringify({ type: "fixpack_click", lang: D.lang })], { type: "application/json" })); } catch (e) {} });
-    fx.appendChild(a); resEl.appendChild(fx);
+    fx.appendChild(a); col.appendChild(fx);
     resEl.hidden = false; resEl.focus(); try { resEl.scrollIntoView({ behavior: "smooth", block: "start" }); } catch (e) {}
   }
-  function snapshot(s) {
+  function snapshot(s, col) {
     var box = el("div", "snap"), country = D.countries[$("f-country").value], niche = D.niches[$("f-niche").value];
-    if (!s) { box.appendChild(el("p", "note", T.snap_none)); resEl.appendChild(box); return; }
+    if (!s) { box.appendChild(el("p", "note", T.snap_none)); col.appendChild(box); return; }
     box.appendChild(el("h2", null, fmt(T.snap_h, { niche: niche, country: country })));
-    var ol = el("ol", "rank");
-    s.top.forEach(function (x) { var li = el("li"); li.appendChild(el("span", null, x.name)); li.appendChild(el("b", null, fmt(T.snap_count, { n: x.named, runs: s.runs }))); ol.appendChild(li); });
-    box.appendChild(ol);
+    var tr = el("div", "transcript"); tr.setAttribute("role", "figure");
+    s.top.forEach(function (x) { var p = el("p", "rk"); p.appendChild(el("span", "named", x.name)); p.appendChild(el("span", "n", fmt(T.snap_count, { n: x.named, runs: s.runs }))); tr.appendChild(p); });
+    box.appendChild(tr);
     box.appendChild(el("p", "note", fmt(T.snap_cap, { runs: s.runs, questions: s.questions, date: s.date, asked: s.runs === 2 * s.questions ? T.asked_twice : T.asked_most })));
     if (s.other_language) box.appendChild(el("p", "note", fmt(T.snap_lang, { lang: D.langs[s.other_language] })));
-    resEl.appendChild(box);
+    col.appendChild(box);
   }
-  function mailBox(res) {
+  function mailBox(res, col) {
     var box = el("div", "mailbox"); box.appendChild(el("h2", null, T.mail_h)); box.appendChild(el("p", null, T.mail_p));
     var f = el("form", "mform"); f.noValidate = true;
     var l1 = el("label", null, T.mail_email), em = el("input"); em.type = "email"; em.name = "email"; em.autocomplete = "email"; em.required = true; l1.appendChild(em);
@@ -67,7 +67,7 @@
         if (r.status === 200) { f.textContent = ""; f.appendChild(el("p", "ok", T.mail_done)); } else { msg.textContent = T.mail_bad; btn.disabled = false; }
       }).catch(function () { msg.textContent = T.e_net; btn.disabled = false; });
     });
-    resEl.appendChild(box);
+    col.appendChild(box);
   }
   function fail(msg) { statusEl.textContent = msg; statusEl.className = "status err"; resEl.hidden = true; }
   form.addEventListener("submit", function (e) {

@@ -16,8 +16,11 @@ def render(lang):
     default_country = {"en": "IE", "fr": "FR", "nl": "BE"}[lang]
     alts = "".join(f'<link rel="alternate" hreflang="{l}" href="https://citedby.eu{S[l]["path"]}">' for l in S) + '<link rel="alternate" hreflang="x-default" href="https://citedby.eu/check">'
     data = json.dumps({"lang": lang, "price_url": PRICE_URL, "countries": t["countries"], "niches": t["niches"], "langs": t["langs"], "js": t["js"]}, ensure_ascii=False).replace("</", "<\\/")
-    nav = {"en": ("Home", "/", "Prices", "/#prices"), "fr": ("Accueil", "/", "Tarifs", "/#prices"), "nl": ("Home", "/", "Prijzen", "/#prices")}[lang]
-    switch = " · ".join(f'<a href="{S[l]["path"]}" hreflang="{l}" lang="{l}"{" aria-current=\"page\"" if l == lang else ""}>{l.upper()}</a>' for l in S)
+    nav = {"en": ("Prices", "How it works"), "fr": ("Tarifs", "Comment ça marche"), "nl": ("Prijzen", "Hoe het werkt")}[lang]
+    skip = {"en": "Skip to content", "fr": "Aller au contenu", "nl": "Naar de inhoud"}[lang]
+    kicker = {"en": "Free check. About 10 seconds, no email.", "fr": "Test gratuit. Environ 10 secondes, sans e-mail.", "nl": "Gratis check. Ongeveer 10 seconden, zonder e-mail."}[lang]
+    method_h = {"en": "How this is checked", "fr": "Comment c'est vérifié", "nl": "Hoe dit gecheckt wordt"}[lang]
+    switch = " / ".join(f'<a href="{S[l]["path"]}" hreflang="{l}" lang="{l}"{" aria-current=\"page\"" if l == lang else ""}>{l.upper()}</a>' for l in S)
     return f'''<!doctype html>
 <html lang="{lang}"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -25,12 +28,17 @@ def render(lang):
 <meta name="description" content="{E(t["desc"])}">
 <link rel="canonical" href="https://citedby.eu{t["path"]}">{alts}
 <meta property="og:title" content="{E(t["title"])}"><meta property="og:description" content="{E(t["desc"])}"><meta property="og:url" content="https://citedby.eu{t["path"]}"><meta property="og:type" content="website">
-<meta name="theme-color" content="#0b0d10">
+<meta name="theme-color" content="#0F1B2D">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="/style.css?v={ver("style.css")}">
+<link rel="preload" href="/fonts/newsreader-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/style.css?v={ver("style.css")}"><link rel="stylesheet" href="/check.css?v={ver("check.css")}">
 </head><body>
-<div class="w"><header class="top"><a class="logo" href="/">Cited<span>By</span></a><nav><a href="{nav[1]}">{nav[0]}</a><a href="{nav[3]}">{nav[2]}</a><span class="lsw">{switch}</span></nav></header>
-<main class="chk">
+<a class="skip" href="#main">{skip}</a>
+<header class="top"><a class="logo" href="/" aria-label="CitedBy">CitedBy<i aria-hidden="true">1</i></a><div class="hnav"><nav aria-label="Main"><a href="/#how">{nav[1]}</a><a href="/#prices">{nav[0]}</a></nav><span class="lsw" aria-label="Language">{switch}</span></div></header>
+<main id="main" class="page chk">
+<section class="sec hero">
+<div class="col">
+<p class="dateline">{E(kicker)}</p>
 <h1>{E(t["h1"])}</h1>
 <p class="lede">{E(t["lede"])}</p>
 <form id="cf" class="cform" novalidate>
@@ -40,11 +48,13 @@ def render(lang):
 <label>{E(t["f_niche"])}<select id="f-niche" name="niche">{opts(NICHES, t["niches"], "other")}</select></label>
 <div class="act"><button class="btn p" id="f-go" type="submit">{E(t["go"])}</button></div>
 </form>
-<p class="note">{E(t["note"])} {E(t["more"])}</p>
 <p id="status" class="status" role="status" aria-live="polite"></p>
-<section id="result" class="res" hidden tabindex="-1"></section>
-</main></div>
-<footer><div class="w"><span>© 2026 CitedBy · <a href="mailto:hello@citedby.eu">hello@citedby.eu</a></span><span><a href="/legal">Legal notice</a> · <a href="/privacy">Privacy</a></span></div></footer>
+</div>
+<aside class="margin" aria-label="{E(method_h)}"><b>{E(method_h)}</b>{E(t["note"])} {E(t["more"])}</aside>
+</section>
+<section id="result" class="sec res" hidden tabindex="-1"></section>
+</main>
+<footer><span>© 2026 CitedBy · <a href="mailto:hello@citedby.eu">hello@citedby.eu</a></span><span><a href="/legal">Legal notice</a> · <a href="/privacy">Privacy</a></span></footer>
 <script type="application/json" id="i18n">{data}</script>
 <script src="/check.js?v={ver("check.js")}"></script>
 </body></html>

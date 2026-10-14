@@ -260,8 +260,8 @@ def confirm(rid):
 
 def page(msg, lang="en", form=None):
     return (f'<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-            f'<meta name="robots" content="noindex"><title>CitedBy</title><link rel="stylesheet" href="/style.css">'
-            f'<body><div class="w"><main class="legal"><p>{html.escape(msg)}</p>{form or ""}<p><a href="/">CitedBy</a></p></main></div>').encode()
+            f'<meta name="robots" content="noindex"><title>CitedBy</title><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/check.css">'
+            f'<body><main class="doc"><p>{html.escape(msg)}</p>{form or ""}<p><a href="/">CitedBy</a></p></main>').encode()
 
 
 ROUTES = {"/": "index.html", "/check": "check.html", "/fr/check": "fr/check.html", "/nl/check": "nl/check.html",
@@ -288,7 +288,7 @@ class H(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(body)))
         cache = "no-store"
         if code == 200 and not self.path.startswith("/api/"):
-            cache = "public, max-age=604800" if self.path.split("?")[0].endswith((".css", ".js", ".svg", ".png", ".ico")) else "public, max-age=300"
+            cache = "public, max-age=604800" if self.path.split("?")[0].endswith((".css", ".js", ".svg", ".png", ".ico", ".woff2")) else "public, max-age=300"
         self.send_header("Cache-Control", cache)
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("Referrer-Policy", "strict-origin-when-cross-origin")

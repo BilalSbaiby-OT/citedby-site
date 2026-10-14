@@ -1,0 +1,36 @@
+/* /check: uses the printed-audit tokens from style.css (RES-81). Inputs and focus use --navy, never --rule. */
+header.top .hnav{display:flex;align-items:baseline;gap:var(--s8)}
+header.top .lsw{font:400 14px var(--sans);color:var(--muted)}
+header.top .lsw a{margin:0;padding:var(--s3) var(--s1);font-size:14px}
+header.top .lsw a[aria-current]{color:var(--navy);font-weight:600;text-decoration:none}
+.chk h1{font-size:56px;max-width:15em}
+.chk .lede{margin-bottom:var(--s8)}
+.cform{display:grid;grid-template-columns:1fr 1fr;gap:var(--s6) var(--s6);margin:0 0 var(--s4);padding:var(--s6) 0 0;border-top:1px solid var(--navy)}
+.cform label,.mform label{display:flex;flex-direction:column;gap:var(--s2);font:600 15px var(--sans);color:var(--navy)}
+.cform .full,.cform .act{grid-column:1/-1}
+input[type=text],input[type=email],select{font:400 18px var(--sans);color:var(--text);background:#fff;border:1px solid var(--navy);border-radius:0;min-height:48px;padding:var(--s2) var(--s3);width:100%}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid var(--navy);outline-offset:3px}
+button.btn{cursor:pointer}button.btn:disabled{opacity:.55;cursor:wait}
+.status{min-height:1.6em;font:400 16px var(--sans);color:var(--muted);margin:var(--s4) 0 0}.status.err{color:var(--correction);font-weight:600}
+.res{outline:none}.res h2{margin-bottom:var(--s3);overflow-wrap:anywhere}
+.res .sum{font:600 20px var(--sans);color:var(--navy);margin:0 0 var(--s6)}
+.cl{list-style:none;padding:0;margin:0;border-top:2px solid var(--navy)}
+.cl li{padding:var(--s4) 0;border-bottom:1px solid var(--rule)}
+.cl .ch{display:flex;gap:var(--s4);align-items:baseline;flex-wrap:wrap}
+.cl .ch b{font:600 19px var(--sans);color:var(--navy)}
+.cl p{margin:var(--s2) 0 0;font:400 17px/1.5 var(--serif);max-width:38em}
+.st{display:inline-block;min-width:7.5em;font:600 13px var(--sans);letter-spacing:.02em;text-transform:uppercase;padding:2px var(--s2);border:1px solid var(--navy);color:var(--navy);background:#fff}
+.st.fail{background:var(--correction);border-color:var(--correction);color:#fff}
+.st.warn{background:var(--wash)}
+.st.na,.st.info{color:var(--muted);border-color:var(--rule)}
+.snap,.mailbox,.fixbox{margin-top:var(--s12);padding-top:var(--s6);border-top:3px solid var(--navy)}
+.snap h2,.mailbox h2,.fixbox h2{font-size:30px}
+.transcript .rk{display:flex;justify-content:space-between;gap:var(--s4)}.transcript .rk .n{color:var(--navy);font-weight:500;white-space:nowrap}
+.fixbox{border-left:6px solid var(--navy);background:var(--wash);padding:var(--s6);border-top:0}
+.mform{display:grid;gap:var(--s4);max-width:460px}
+.mform .cons{flex-direction:row;gap:var(--s3);align-items:flex-start;font:400 16px/1.4 var(--sans);color:var(--text)}
+.mform .cons input{margin-top:3px;width:20px;height:20px;flex:none;accent-color:var(--navy)}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}.ok{color:var(--navy);font-weight:600}
+@media(max-width:900px){.chk h1{font-size:44px}header.top .hnav{gap:var(--s4)}}
+@media(max-width:700px){.cform{grid-template-columns:1fr}header.top .hnav nav{display:none}.chk h1{font-size:36px}.st{min-width:6.5em}}
+@media(min-width:901px){.chk .sec .margin{grid-row:1}.chk .sec .col{grid-row:1}}
