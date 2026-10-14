@@ -123,3 +123,4 @@ ol.fx{font:400 18px/1.55 var(--serif);padding-left:24px}ol.fx li{margin-bottom:v
 
 /* RES-560: below 1360px the pricing column is too narrow for copy plus buy column; stack the buy block */
 @media(max-width:1360px){.row{grid-template-columns:1fr}.row .buy{text-align:left;min-width:0}}
+@media(min-width:701px) and (max-width:1360px){.row.hl{padding-right:var(--s6)}}
