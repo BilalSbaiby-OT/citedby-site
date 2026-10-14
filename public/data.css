@@ -29,6 +29,7 @@ ul.lv li{padding:var(--s3) 0;border-top:1px solid var(--rule);margin:0}
  .dp .tw tr{padding:var(--s3) 0;border-top:1px solid var(--rule)}
  .dp .tw td{border:0;padding:2px 0;white-space:normal}
  .dp .tw td.m{display:none}
+ .dp .tw td[data-label]::before{content:attr(data-label) ": ";font-weight:700;color:var(--navy)}
  .pm{display:inline}
  .dp .cta{padding:var(--s6) var(--s4)}
 }
