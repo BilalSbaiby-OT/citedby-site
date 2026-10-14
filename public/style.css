@@ -99,7 +99,7 @@ footer a{color:var(--navy);display:inline-block;padding:var(--s2) 0}
 }
 @media(max-width:700px){
  body{font-size:18px}
- header nav a:not(:last-child){display:none}header nav a{margin-left:0}
+ header nav a:not(.k){display:none}header nav a{margin-left:var(--s4)}header.top{flex-wrap:wrap;gap:var(--s2)}
  h1{font-size:44px}h2{font-size:30px}.lede{font-size:19px}
  .transcript{padding:var(--s4);font-size:15px}
  .actions{flex-direction:column;align-items:stretch;gap:var(--s4);text-align:center}
@@ -109,3 +109,14 @@ footer a{color:var(--navy);display:inline-block;padding:var(--s2) 0}
  td:last-child,th:last-child{white-space:normal}
  td,th{font-size:15px}
 }
+
+/* RES-498: proof strip, guarantee box, after-you-pay, sample audit fixes */
+.sec.proof{padding:var(--s8) 0}
+.proofline{font:400 21px/1.45 var(--serif);color:var(--navy);max-width:34em}
+.row .guar{background:#fff;border-left:4px solid var(--navy);padding:var(--s4) var(--s6);margin:var(--s6) 0 0;max-width:40em}
+.row .guar h4,.row .after h4{font:600 13px var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--navy);margin:0 0 var(--s3)}
+.row .guar ol,.row .after ol{margin:0 0 var(--s3);padding-left:22px;font:400 15px/1.55 var(--sans)}
+.row .guar li,.row .after li{margin-bottom:var(--s2)}
+.row .guar p{font:400 14px/1.5 var(--sans);color:var(--muted);margin:0}
+.row .after{margin:var(--s6) 0 0;max-width:40em}
+ol.fx{font:400 18px/1.55 var(--serif);padding-left:24px}ol.fx li{margin-bottom:var(--s4)}

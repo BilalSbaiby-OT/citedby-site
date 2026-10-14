@@ -54,7 +54,7 @@ def render(lang):
 </section>
 <section id="result" class="sec res" hidden tabindex="-1"></section>
 </main>
-<footer><span>© 2026 CitedBy. <a href="mailto:hello@citedby.eu">hello@citedby.eu</a></span><span><a href="/legal">Legal notice</a> &nbsp; <a href="/privacy">Privacy</a></span></footer>
+<footer><span>© 2026 CitedBy. hello@citedby.eu</span><span><a href="/legal">Legal notice</a> &nbsp; <a href="/privacy">Privacy</a></span></footer>
 <script type="application/json" id="i18n">{data}</script>
 <script src="/check.js?v={ver("check.js")}"></script>
 </body></html>

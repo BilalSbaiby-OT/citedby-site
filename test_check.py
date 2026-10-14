@@ -142,6 +142,22 @@ class SSRF(unittest.TestCase):
             self.assertEqual((r["status"], r["body"], r["error"]), (200, "hello https", ""))
         finally: safefetch.addr_ok, safefetch.parse, safefetch.CTX = orig, orig_parse, orig_ctx; srv.shutdown()
 
+    def test_connect_deadline_race(self):                                                   # RES-464: timer fires while connect() is still in flight
+        import time
+        ls = socket.socket(); ls.bind(("127.0.0.1", 0)); ls.listen(5); port = ls.getsockname()[1]  # accepts in the kernel, never answers
+        orig, orig_parse, orig_cc = safefetch.addr_ok, safefetch.parse, socket.create_connection
+        def slow(addr, timeout=None, *a, **k):
+            time.sleep(0.5); return orig_cc(addr, timeout, *a, **k)
+        safefetch.addr_ok = lambda ip: True; safefetch.parse = lambda u: (safefetch.urlsplit(u), port); socket.create_connection = slow
+        try:
+            r = safefetch.fetch(f"http://127.0.0.1:{port}/", deadline=time.time() + 0.3)
+            self.assertEqual(r["error"], "timeout")
+            conn, _ = ls.accept(); conn.settimeout(0.5)                                      # without the fix the request is sent on the late socket
+            try: got = conn.recv(100)
+            except socket.timeout: got = b""
+            conn.close(); self.assertNotIn(b"GET", got)
+        finally: safefetch.addr_ok, safefetch.parse, socket.create_connection = orig, orig_parse, orig_cc; ls.close()
+
     def test_body_cap(self):
         srv = HTTPServer(("127.0.0.1", 0), type("B", (BaseHTTPRequestHandler,), {"do_GET": lambda s: (s.send_response(200), s.end_headers(), s.wfile.write(b"a" * 5_000_000)), "log_message": lambda *a: None}))
         threading.Thread(target=srv.serve_forever, daemon=True).start(); port = srv.server_port
@@ -216,6 +232,11 @@ class Api(unittest.TestCase):
         sent = [l for l in open("/tmp/cbt-outbox.jsonl") if "ictim" in l]
         self.assertEqual(len(sent), server.MAILS_PER_ADDR_DAY)
 
+    def test_trailing_dot_email_rejected(self):                                             # RES-464: victim@gmail.com. must not get its own cap bucket
+        for addr in ("zdot@gmail.com.", "zdot@gmail..com", "zdot@.gmail.com"):
+            self.assertEqual(self.post("/api/request", {"email": addr, "url": "example.com", "lang": "en", "consent": True})[0], 400, addr)
+        self.assertFalse([l for l in open("/tmp/cbt-outbox.jsonl") if "zdot" in l])
+
     def test_clean_url_fallback(self):                                                       # S3: nginx try_files parity
         os.makedirs(os.path.join(server.SITE_DIR, "zz-test"), exist_ok=True)
         open(os.path.join(server.SITE_DIR, "zz-test.html"), "w").write("x"); open(os.path.join(server.SITE_DIR, "zz-test", "index.html"), "w").write("y")
@@ -232,6 +253,18 @@ class Api(unittest.TestCase):
         self.assertEqual(self.get_status(self.base + "/healthz"), 200)
         for p in ("/check", "/fr/check", "/nl/check", "/", "/style.css"): self.assertEqual(self.get_status(self.base + p), 200, p)
         for p in ("/../server.py", "/%2e%2e/server.py", "/..%2fserver.py", "/data/snapshots.json"):
+            self.assertEqual(self.get_status(self.base + p), 404, p)
+
+    def test_data_pages_routing(self):
+        for p in ("/data", "/data/cafe-france", "/data/study-chatgpt-buyer-questions", "/data/cafe-france.csv", "/data/citedby-study-2026-10.pdf"):
+            self.assertEqual(self.get_status(self.base + p), 200, p)
+        class NoRedirect(urllib.request.HTTPRedirectHandler):
+            def redirect_request(self, *a, **k): return None
+        try: urllib.request.build_opener(NoRedirect).open(self.base + "/data/"); code = 200
+        except urllib.error.HTTPError as e: code, loc = e.code, e.headers.get("Location")
+        self.assertEqual((code, loc), (301, "/data"))
+        with urllib.request.urlopen(self.base + "/data/cafe-france.csv") as r: self.assertTrue(r.headers["Content-Type"].startswith("text/csv"))
+        for p in ("/data/../server.py", "/data/..%2fserver.py", "/data/%2e%2e/server", "/data/missing"):
             self.assertEqual(self.get_status(self.base + p), 404, p)
 
     def test_rate_limit(self):

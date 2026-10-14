@@ -66,10 +66,13 @@ class _Conn(http.client.HTTPConnection):
     def __init__(self, host, ip, port, timeout, tls):
         super().__init__(host, port, timeout=timeout)
         self._ip, self._tls = ip, tls
+        self.dead = False  # set by the deadline timer; connect() honours it if the timer fired mid-connect
 
     def connect(self):
         self.sock = socket.create_connection((self._ip, self.port), self.timeout)
         self.raw = socket.socket(fileno=os.dup(self.sock.fileno()))  # own fd for the deadline timer: http.client closes self.sock on 'Connection: close' responses, shutdown() on a dup still cuts the connection
+        if self.dead:  # the timer fired while we were connecting and found no socket to cut
+            self.raw.shutdown(socket.SHUT_RDWR)
         if self._tls:
             self.sock = CTX.wrap_socket(self.sock, server_hostname=self.host)
 
@@ -93,6 +96,7 @@ def fetch(url, deadline=None, max_body=MAX_BODY, accept_lang="en"):
         c = _Conn(u.hostname, ip, port, min(left, 8), u.scheme == "https")
         c.raw = None
         def cut():  # hard deadline in every phase (connect, TLS, status line, headers, body): shutting the TCP socket unblocks any recv
+            c.dead = True
             try:
                 c.raw.shutdown(socket.SHUT_RDWR)
             except Exception:
