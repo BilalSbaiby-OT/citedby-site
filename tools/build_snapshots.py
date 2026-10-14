@@ -21,6 +21,7 @@ NAMES = {  # as the shops spell themselves; a domain with no entry is shown as t
     "nutripure.fr": "Nutripure", "arkopharma.com": "Arkopharma", "dynveo.fr": "Dynveo",
     "cloudpickercoffee.ie": "Cloud Picker Coffee", "3fe.com": "3fe Coffee", "calendarcoffee.ie": "Calendar Coffee", "belllane.ie": "Bell Lane Coffee",
     "ponaire.ie": "Ponaire Coffee", "typo.ie": "Typo Coffee", "bearmarket.ie": "Bear Market",
+    "lomi.coffee": "Lomi", "coffao.com": "Coffao", "greenwhey.com": "Greenwhey", "slome.fr": "Slome", "mello-matelas.fr": "Mello", "oenobiol.com": "Oenobiol", "rosscoffee.be": "ROSS Specialty Coffee Roastery",
 }
 MIN_ANSWERS, MAX_SHOPS = 3, 5
 src = os.path.expanduser(sys.argv[1]); out = {}
@@ -35,7 +36,7 @@ for name, (cc, lang, niche) in CELLS.items():
     for r in valid:
         ds = {ALIASES.get(d, d) for d in (x.lower().removeprefix("www.") for x in r.get("domains", []))}
         c.update(d for d in ds if d not in NOT_SHOPS)
-    top = [{"name": NAMES.get(d, d), "host": d, "named": n} for d, n in c.most_common() if n >= MIN_ANSWERS][:MAX_SHOPS]
+    top = [{"name": NAMES.get(d, d), "host": d, "named": n} for d, n in sorted(c.items(), key=lambda kv: (-kv[1], NAMES.get(kv[0], kv[0]).lower())) if n >= MIN_ANSWERS][:MAX_SHOPS]
     prompts = {r["prompt"] for r in valid}
     out[f"{cc}|{lang}|{niche}"] = {"date": max(r["ts"] for r in valid)[:10], "runs": len(valid), "questions": len(prompts), "top": top}
     if "--report" in sys.argv:

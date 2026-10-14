@@ -79,6 +79,48 @@ class SSRF(unittest.TestCase):
             self.assertLess(time.time() - t0, 6); self.assertEqual(r["error"], "timeout")
         finally: safefetch.addr_ok, safefetch.parse = orig, orig_parse
 
+    def _raw_trickle(self, payload):
+        """Server that sends `payload` one byte per 0.5 s, never finishing the status line or headers."""
+        import time
+        ls = socket.socket(); ls.bind(("127.0.0.1", 0)); ls.listen(5); port = ls.getsockname()[1]
+        def serve():
+            while True:
+                try: c, _ = ls.accept()
+                except OSError: return
+                def drip(c=c):
+                    try:
+                        c.recv(4096)
+                        for b in payload: c.send(bytes([b])); time.sleep(0.5)
+                    except OSError: pass
+                threading.Thread(target=drip, daemon=True).start()
+        threading.Thread(target=serve, daemon=True).start()
+        return ls, port
+
+    def _timed_fetch(self, payload):
+        import time
+        ls, port = self._raw_trickle(payload)
+        orig, orig_parse = safefetch.addr_ok, safefetch.parse
+        safefetch.addr_ok = lambda ip: True
+        safefetch.parse = lambda u: (safefetch.urlsplit(u), port)
+        try:
+            t0 = time.time(); r = safefetch.fetch(f"http://127.0.0.1:{port}/", deadline=time.time() + 3)
+            return time.time() - t0, r
+        finally: safefetch.addr_ok, safefetch.parse = orig, orig_parse; ls.close()
+
+    def test_trickle_status_line(self):                                                     # R1: deadline holds before the headers arrive
+        dt, r = self._timed_fetch(b"HTTP/1.1 200 OK" + b"x" * 500)
+        self.assertLess(dt, 4); self.assertEqual(r["error"], "timeout")
+
+    def test_trickle_headers(self):                                                         # R1
+        dt, r = self._timed_fetch(b"HTTP/1.1 200 OK\r\n" + b"X-A: b\r\n" * 200)
+        self.assertLess(dt, 4); self.assertEqual(r["error"], "timeout")
+
+    def test_inbox_key(self):                                                               # R2
+        k = server.inbox_key
+        self.assertEqual({k("victim@gmail.com"), k("Victim+1@gmail.com"), k("v.ictim@googlemail.com")}, {"victim@gmail.com"})
+        self.assertNotEqual(k("a+x@example.com"), k("b@example.com")); self.assertEqual(k("a+x@example.com"), "a@example.com")
+        self.assertNotEqual(k("a.b@example.com"), k("ab@example.com"))                       # dots count outside Gmail
+
     def test_body_cap(self):
         srv = HTTPServer(("127.0.0.1", 0), type("B", (BaseHTTPRequestHandler,), {"do_GET": lambda s: (s.send_response(200), s.end_headers(), s.wfile.write(b"a" * 5_000_000)), "log_message": lambda *a: None}))
         threading.Thread(target=srv.serve_forever, daemon=True).start(); port = srv.server_port
@@ -146,6 +188,12 @@ class Api(unittest.TestCase):
         for host in ("example.com", "example.org", "example.net", "iana.org"):
             self.assertEqual(self.post("/api/request", {"email": "cap@example.com", "url": host, "lang": "en", "consent": True})[0], 200)
         self.assertEqual(len([l for l in open("/tmp/cbt-outbox.jsonl") if "cap@example.com" in l]), server.MAILS_PER_ADDR_DAY)  # outbox is shared across tests; filtered by recipient
+
+    def test_mail_cap_same_inbox(self):                                                      # R2: +tag and Gmail dots share one cap
+        for addr in ("victim@gmail.com", "victim+1@gmail.com", "v.ictim@gmail.com", "vi.ctim+z@gmail.com"):
+            self.assertEqual(self.post("/api/request", {"email": addr, "url": "example.com", "lang": "en", "consent": True})[0], 200)
+        sent = [l for l in open("/tmp/cbt-outbox.jsonl") if "ictim" in l]
+        self.assertEqual(len(sent), server.MAILS_PER_ADDR_DAY)
 
     def test_clean_url_fallback(self):                                                       # S3: nginx try_files parity
         os.makedirs(os.path.join(server.SITE_DIR, "zz-test"), exist_ok=True)

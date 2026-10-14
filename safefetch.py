@@ -4,7 +4,7 @@ Rules: http/https only, ports 80/443 only, no userinfo, every resolved address m
 the socket connects to the address we validated (no second DNS lookup, so no rebinding), every redirect hop is
 re-validated, bodies and wall-clock time are capped.
 """
-import http.client, ipaddress, socket, ssl, time
+import http.client, ipaddress, socket, ssl, threading, time
 from urllib.parse import urlsplit, urljoin
 
 UA = "CitedByCheck/1.0 (+https://citedby.eu/check)"
@@ -67,10 +67,9 @@ class _Conn(http.client.HTTPConnection):
         self._ip, self._tls = ip, tls
 
     def connect(self):
-        self.sock = socket.create_connection((self._ip, self.port), self.timeout)
+        self.raw = self.sock = socket.create_connection((self._ip, self.port), self.timeout)  # plain TCP socket: the deadline timer shuts it down
         if self._tls:
             self.sock = CTX.wrap_socket(self.sock, server_hostname=self.host)
-        self.raw = self.sock  # http.client drops self.sock when the response is "Connection: close"; keep it to set read timeouts
 
 
 def fetch(url, deadline=None, max_body=MAX_BODY, accept_lang="en"):
@@ -89,8 +88,17 @@ def fetch(url, deadline=None, max_body=MAX_BODY, accept_lang="en"):
         left = deadline - time.time()
         if left <= 0:
             return {"status": 0, "url": cur, "body": "", "error": "timeout"}
+        c = _Conn(u.hostname, ip, port, min(left, 8), u.scheme == "https")
+        c.raw = None
+        def cut():  # hard deadline in every phase (connect, TLS, status line, headers, body): shutting the TCP socket unblocks any recv
+            try:
+                c.raw.shutdown(socket.SHUT_RDWR)
+            except Exception:
+                pass
+        timer = threading.Timer(max(0, deadline - time.time()), cut)
+        timer.daemon = True
+        timer.start()
         try:
-            c = _Conn(u.hostname, ip, port, min(left, 8), u.scheme == "https")
             path = (u.path or "/") + ("?" + u.query if u.query else "")
             c.request("GET", path, headers={"Host": u.netloc.rsplit("@", 1)[-1], "User-Agent": UA, "Accept-Language": accept_lang,
                                             "Accept": "text/html,text/plain,application/json;q=0.9,*/*;q=0.5", "Connection": "close"})
@@ -116,5 +124,8 @@ def fetch(url, deadline=None, max_body=MAX_BODY, accept_lang="en"):
         except (TimeoutError, socket.timeout):
             return {"status": 0, "url": cur, "body": "", "error": "timeout"}
         except Exception as e:  # network errors are data, not crashes
-            return {"status": 0, "url": cur, "body": "", "error": type(e).__name__}
+            return {"status": 0, "url": cur, "body": "", "error": "timeout" if time.time() >= deadline - 0.05 else type(e).__name__}
+        finally:
+            timer.cancel()
+            c.close()
     return {"status": 0, "url": cur, "body": "", "error": "too_many_redirects"}

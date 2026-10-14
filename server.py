@@ -150,6 +150,15 @@ def limited(key, limit):
     return False
 
 
+def inbox_key(email):
+    """Same inbox, same key: lowercase, drop +tag, and for Gmail drop dots and unify the domain."""
+    local, _, domain = email.lower().partition("@")
+    local = local.split("+", 1)[0]
+    if domain in ("gmail.com", "googlemail.com"):
+        local, domain = local.replace(".", ""), "gmail.com"
+    return f"{local}@{domain}"
+
+
 def snapshot(country, lang, niche):
     s = SNAPSHOTS.get(f"{country}|{lang}|{niche}")
     other = False
@@ -223,9 +232,9 @@ def handle_request(data, ip):
         _db.commit()
         if conf or now - last < 600:
             return True
-        if _db.execute("SELECT count(*) FROM mail_log WHERE email=? AND ts>?", (email, now - 86400)).fetchone()[0] >= MAILS_PER_ADDR_DAY:
+        if _db.execute("SELECT count(*) FROM mail_log WHERE email=? AND ts>?", (inbox_key(email), now - 86400)).fetchone()[0] >= MAILS_PER_ADDR_DAY:
             return True  # nobody can flood a stranger's inbox through this form
-        _db.execute("INSERT INTO mail_log(email,ts) VALUES(?,?)", (email, now))
+        _db.execute("INSERT INTO mail_log(email,ts) VALUES(?,?)", (inbox_key(email), now))
         _db.execute("UPDATE request SET last_mail_ts=? WHERE id=?", (now, rid))
         _db.commit()
     count_event("email_submitted", lang, ip)

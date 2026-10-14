@@ -57,8 +57,8 @@
     "named": 4
    },
    {
-    "name": "rosscoffee.be",
-    "host": "rosscoffee.be",
+    "name": "De Witte Zwaan",
+    "host": "dewittezwaan.be",
     "named": 3
    }
   ]
@@ -69,28 +69,28 @@
   "questions": 8,
   "top": [
    {
-    "name": "lomi.coffee",
-    "host": "lomi.coffee",
-    "named": 6
-   },
-   {
     "name": "Belleville Brûlerie",
     "host": "bellevillebrulerie.com",
     "named": 6
    },
    {
-    "name": "coffao.com",
-    "host": "coffao.com",
-    "named": 5
+    "name": "Lomi",
+    "host": "lomi.coffee",
+    "named": 6
    },
    {
-    "name": "Terres de Café",
-    "host": "terresdecafe.com",
+    "name": "Coffao",
+    "host": "coffao.com",
     "named": 5
    },
    {
     "name": "Coutume",
     "host": "coutumecafe.com",
+    "named": 5
+   },
+   {
+    "name": "Terres de Café",
+    "host": "terresdecafe.com",
     "named": 5
    }
   ]
@@ -138,17 +138,17 @@
     "named": 5
    },
    {
-    "name": "greenwhey.com",
-    "host": "greenwhey.com",
-    "named": 4
-   },
-   {
     "name": "Aime",
     "host": "aime.co",
     "named": 4
    },
    {
-    "name": "oenobiol.com",
+    "name": "Greenwhey",
+    "host": "greenwhey.com",
+    "named": 4
+   },
+   {
+    "name": "Oenobiol",
     "host": "oenobiol.com",
     "named": 3
    }
@@ -170,7 +170,7 @@
     "named": 8
    },
    {
-    "name": "slome.fr",
+    "name": "Slome",
     "host": "slome.fr",
     "named": 5
    },
@@ -180,7 +180,7 @@
     "named": 4
    },
    {
-    "name": "mello-matelas.fr",
+    "name": "Mello",
     "host": "mello-matelas.fr",
     "named": 4
    }
