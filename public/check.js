@@ -44,7 +44,7 @@
     var box = el("div", "snap"), country = D.countries[$("f-country").value], niche = D.niches[$("f-niche").value];
     if (!s) { box.appendChild(el("p", "note", T.snap_none)); col.appendChild(box); return; }
     box.appendChild(el("h2", null, fmt(T.snap_h, { niche: niche, country: country })));
-    var tr = el("div", "transcript"); tr.setAttribute("role", "figure");
+    var tr = el("div", "tally");
     s.top.forEach(function (x) { var p = el("p", "rk"); p.appendChild(el("span", "named", x.name)); p.appendChild(el("span", "n", fmt(T.snap_count, { n: x.named, runs: s.runs }))); tr.appendChild(p); });
     box.appendChild(tr);
     box.appendChild(el("p", "note", fmt(T.snap_cap, { runs: s.runs, questions: s.questions, date: s.date, asked: s.runs === 2 * s.questions ? T.asked_twice : T.asked_most })));

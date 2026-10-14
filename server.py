@@ -258,9 +258,15 @@ def confirm(rid):
     return row[0]
 
 
+def asset_ver(name):
+    with open(os.path.join(HERE, "public", name), "rb") as f:
+        return hashlib.sha256(f.read()).hexdigest()[:8]
+
+
 def page(msg, lang="en", form=None):
+    sv, cv = asset_ver("style.css"), asset_ver("check.css")
     return (f'<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-            f'<meta name="robots" content="noindex"><title>CitedBy</title><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/check.css">'
+            f'<meta name="robots" content="noindex"><title>CitedBy</title><link rel="stylesheet" href="/style.css?v={sv}"><link rel="stylesheet" href="/check.css?v={cv}">'
             f'<body><main class="doc"><p>{html.escape(msg)}</p>{form or ""}<p><a href="/">CitedBy</a></p></main>').encode()
 
 

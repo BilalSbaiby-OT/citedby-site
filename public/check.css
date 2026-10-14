@@ -25,7 +25,7 @@ button.btn{cursor:pointer}button.btn:disabled{opacity:.55;cursor:wait}
 .st.na,.st.info{color:var(--muted);border-color:var(--rule)}
 .snap,.mailbox,.fixbox{margin-top:var(--s12);padding-top:var(--s6);border-top:3px solid var(--navy)}
 .snap h2,.mailbox h2,.fixbox h2{font-size:30px}
-.transcript .rk{display:flex;justify-content:space-between;gap:var(--s4)}.transcript .rk .n{color:var(--navy);font-weight:500;white-space:nowrap}
+.tally{border-top:2px solid var(--navy);margin:var(--s4) 0}.tally .rk{display:flex;justify-content:space-between;gap:var(--s4);margin:0;padding:var(--s3) 0;border-bottom:1px solid var(--rule);font:400 17px var(--sans)}.tally .rk .n{color:var(--navy);font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
 .fixbox{border-left:6px solid var(--navy);background:var(--wash);padding:var(--s6);border-top:0}
 .mform{display:grid;gap:var(--s4);max-width:460px}
 .mform .cons{flex-direction:row;gap:var(--s3);align-items:flex-start;font:400 16px/1.4 var(--sans);color:var(--text)}
@@ -34,3 +34,4 @@ button.btn{cursor:pointer}button.btn:disabled{opacity:.55;cursor:wait}
 @media(max-width:900px){.chk h1{font-size:44px}header.top .hnav{gap:var(--s4)}}
 @media(max-width:700px){.cform{grid-template-columns:1fr}header.top .hnav nav{display:none}.chk h1{font-size:36px}.st{min-width:6.5em}}
 @media(min-width:901px){.chk .sec .margin{grid-row:1}.chk .sec .col{grid-row:1}}
+@media(max-width:900px){.res{display:flex;flex-direction:column}.res .col{display:contents}.res .col>*{order:1}.res .margin{order:2;margin-top:var(--s6)}.res .col>.snap,.res .col>.mailbox,.res .col>.fixbox{order:3}}

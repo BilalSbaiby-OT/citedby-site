@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Render public/check.html, public/fr/check.html, public/nl/check.html from tools/i18n.py."""
-import hashlib, html, json, os, sys
+import hashlib, html, json, os, re, sys
 sys.path.insert(0, os.path.dirname(__file__))
 from i18n import S, COUNTRIES, NICHES, PRICE_URL
 ROOT = os.path.join(os.path.dirname(__file__), "..", "public")
@@ -54,7 +54,7 @@ def render(lang):
 </section>
 <section id="result" class="sec res" hidden tabindex="-1"></section>
 </main>
-<footer><span>© 2026 CitedBy · <a href="mailto:hello@citedby.eu">hello@citedby.eu</a></span><span><a href="/legal">Legal notice</a> · <a href="/privacy">Privacy</a></span></footer>
+<footer><span>© 2026 CitedBy. <a href="mailto:hello@citedby.eu">hello@citedby.eu</a></span><span><a href="/legal">Legal notice</a> &nbsp; <a href="/privacy">Privacy</a></span></footer>
 <script type="application/json" id="i18n">{data}</script>
 <script src="/check.js?v={ver("check.js")}"></script>
 </body></html>
@@ -65,3 +65,9 @@ for lang in S:
     os.makedirs(os.path.dirname(path), exist_ok=True)
     open(path, "w").write(render(lang))
     print("wrote", os.path.relpath(path))
+
+# Versioned CSS on every static page, so a changed sheet is never served from a week-old cache.
+for name in ("index.html", "legal.html", "privacy.html"):
+    path = os.path.join(ROOT, name)
+    t = re.sub(r'href="/style\.css(\?v=\w+)?"', f'href="/style.css?v={ver("style.css")}"', open(path).read())
+    open(path, "w").write(t)
