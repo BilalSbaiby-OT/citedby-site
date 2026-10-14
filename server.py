@@ -259,10 +259,16 @@ def confirm(rid):
     return row[0]
 
 
+def asset_ver(name):
+    with open(os.path.join(HERE, "public", name), "rb") as f:
+        return hashlib.sha256(f.read()).hexdigest()[:8]
+
+
 def page(msg, lang="en", form=None):
+    sv, cv = asset_ver("style.css"), asset_ver("check.css")
     return (f'<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-            f'<meta name="robots" content="noindex"><title>CitedBy</title><link rel="stylesheet" href="/style.css">'
-            f'<body><div class="w"><main class="legal"><p>{html.escape(msg)}</p>{form or ""}<p><a href="/">CitedBy</a></p></main></div>').encode()
+            f'<meta name="robots" content="noindex"><title>CitedBy</title><link rel="stylesheet" href="/style.css?v={sv}"><link rel="stylesheet" href="/check.css?v={cv}">'
+            f'<body><main class="doc"><p>{html.escape(msg)}</p>{form or ""}<p><a href="/">CitedBy</a></p></main>').encode()
 
 
 ROUTES = {"/": "index.html", "/check": "check.html", "/fr/check": "fr/check.html", "/nl/check": "nl/check.html",
@@ -289,7 +295,7 @@ class H(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(body)))
         cache = "no-store"
         if code == 200 and not self.path.startswith("/api/"):
-            cache = "public, max-age=604800" if self.path.split("?")[0].endswith((".css", ".js", ".svg", ".png", ".ico")) else "public, max-age=300"
+            cache = "public, max-age=604800" if self.path.split("?")[0].endswith((".css", ".js", ".svg", ".png", ".ico", ".woff2")) else "public, max-age=300"
         self.send_header("Cache-Control", cache)
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("Referrer-Policy", "strict-origin-when-cross-origin")

@@ -15,7 +15,7 @@ S = {
   langs=dict(en="English", fr="French", nl="Dutch"), more="German and Spanish pages are coming.",
   nav_home="Home", nav_prices="Prices",
   js=dict(
-    busy="Checking your shop…", r_h="Door check for", r_sum="{pass} of {total} checks passed", method="Method: plain HTTP fetch, no JavaScript. This is a technical check; it does not tell you whether ChatGPT will name your shop.",
+    m_h="How this is checked", busy="Checking your shop…", r_h="Door check for", r_sum="{pass} of {total} checks passed", method="Method: plain HTTP fetch, no JavaScript. This is a technical check; it does not tell you whether ChatGPT will name your shop.",
     s_pass="OK", s_fail="Fix", s_warn="Check", s_na="Not checked", s_info="Optional", on_page="Checked on {url}",
     t_crawlers="AI crawlers allowed in robots.txt", t_raw_text="Text in the page HTML", t_org_schema="Organization data (JSON-LD)", t_product_schema="Product data (JSON-LD)",
     t_product_price="Price in product data", t_product_availability="Availability in product data", t_product_gtin="GTIN or barcode in product data", t_llms_txt="llms.txt",
@@ -49,7 +49,7 @@ S = {
   langs=dict(en="anglais", fr="français", nl="néerlandais"), more="Les pages allemande et espagnole arrivent.",
   nav_home="Accueil", nav_prices="Tarifs",
   js=dict(
-    busy="Vérification en cours…", r_h="Contrôle d'accès pour", r_sum="{pass} contrôles réussis sur {total}", method="Méthode : requête HTTP simple, sans JavaScript. C'est un contrôle technique ; il ne dit pas si ChatGPT citera votre boutique.",
+    m_h="Comment c'est vérifié", busy="Vérification en cours…", r_h="Contrôle d'accès pour", r_sum="{pass} contrôles réussis sur {total}", method="Méthode : requête HTTP simple, sans JavaScript. C'est un contrôle technique ; il ne dit pas si ChatGPT citera votre boutique.",
     s_pass="OK", s_fail="À corriger", s_warn="À vérifier", s_na="Non vérifié", s_info="Facultatif", on_page="Vérifié sur {url}",
     t_crawlers="Robots IA autorisés dans robots.txt", t_raw_text="Texte dans le HTML de la page", t_org_schema="Données Organization (JSON-LD)", t_product_schema="Données Product (JSON-LD)",
     t_product_price="Prix dans les données produit", t_product_availability="Disponibilité dans les données produit", t_product_gtin="GTIN ou code-barres dans les données produit", t_llms_txt="llms.txt",
@@ -83,7 +83,7 @@ S = {
   langs=dict(en="Engels", fr="Frans", nl="Nederlands"), more="Duitse en Spaanse pagina's volgen.",
   nav_home="Home", nav_prices="Prijzen",
   js=dict(
-    busy="Je shop wordt gecheckt…", r_h="Toegangscheck voor", r_sum="{pass} van {total} checks geslaagd", method="Methode: gewone HTTP-opvraging, zonder JavaScript. Dit is een technische check; hij zegt niet of ChatGPT je shop zal noemen.",
+    m_h="Hoe dit gecheckt wordt", busy="Je shop wordt gecheckt…", r_h="Toegangscheck voor", r_sum="{pass} van {total} checks geslaagd", method="Methode: gewone HTTP-opvraging, zonder JavaScript. Dit is een technische check; hij zegt niet of ChatGPT je shop zal noemen.",
     s_pass="OK", s_fail="Aanpassen", s_warn="Nakijken", s_na="Niet gecheckt", s_info="Optioneel", on_page="Gecheckt op {url}",
     t_crawlers="AI-crawlers toegelaten in robots.txt", t_raw_text="Tekst in de HTML van de pagina", t_org_schema="Organization-data (JSON-LD)", t_product_schema="Product-data (JSON-LD)",
     t_product_price="Prijs in de productdata", t_product_availability="Beschikbaarheid in de productdata", t_product_gtin="GTIN of barcode in de productdata", t_llms_txt="llms.txt",
