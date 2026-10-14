@@ -72,18 +72,19 @@ def product_facts(html):
 
 
 def find_product_url(root, home_html, fetch):
+    host = urlsplit(root).netloc
+    links = [urljoin(root + "/", h).split("?")[0] for h in re.findall(r'href=["\']([^"\'#]+)', home_html)]
+    links = [l for l in links if urlsplit(l).netloc == host]
+    for l in links:  # a product the shop itself links from its homepage is the best sample
+        if re.search(r"/products?/[^/]+/?$", urlsplit(l).path, re.I):
+            return l
     r = fetch(root + "/products.json?limit=1")
     if r["status"] == 200:
         try:
             return f"{root}/products/{json.loads(r['body'])['products'][0]['handle']}"
         except (ValueError, KeyError, IndexError, TypeError):
             pass
-    host = urlsplit(root).netloc
-    for href in re.findall(r'href=["\']([^"\'#]+)', home_html):
-        full = urljoin(root + "/", href)
-        if urlsplit(full).netloc == host and PRODUCT_PATH.search(urlsplit(full).path):
-            return full.split("?")[0]
-    return ""
+    return next((l for l in links if PRODUCT_PATH.search(urlsplit(l).path)), "")
 
 
 def run(raw_url, lang="en", timeout=18):

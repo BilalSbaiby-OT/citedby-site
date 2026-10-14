@@ -24,6 +24,7 @@ CHECK_PER_IP = int(os.environ.get("CHECK_PER_IP_HOUR", "10"))
 CHECK_PER_HOST = int(os.environ.get("CHECK_PER_HOST_HOUR", "4"))
 REQ_PER_IP = int(os.environ.get("REQ_PER_IP_HOUR", "5"))
 DAILY_CAP = int(os.environ.get("DAILY_CAP", "20"))
+MAILS_PER_ADDR_DAY = 2
 INTERNAL_IPS = {x for x in os.environ.get("INTERNAL_IPS", "").split(",") if x}
 LANGS = ("en", "fr", "nl")
 COUNTRIES = ("BE", "FR", "NL", "IE", "DE", "ES", "GB", "OTHER")
@@ -38,6 +39,7 @@ _db.execute("PRAGMA journal_mode=WAL")
 _db.execute("""CREATE TABLE IF NOT EXISTS request(
   id INTEGER PRIMARY KEY, email TEXT NOT NULL, url TEXT NOT NULL, country TEXT, lang TEXT, niche TEXT, summary TEXT,
   ts INTEGER, consent_text_version TEXT, last_mail_ts INTEGER DEFAULT 0, confirmed_ts INTEGER, confirmed_day TEXT, released_day TEXT)""")
+_db.execute("CREATE TABLE IF NOT EXISTS mail_log(email TEXT NOT NULL, ts INTEGER NOT NULL)")
 _db.execute("""CREATE TABLE IF NOT EXISTS event_count(
   day TEXT NOT NULL, lang TEXT NOT NULL, type TEXT NOT NULL, n INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(day,lang,type))""")
 _db.commit()
@@ -48,16 +50,16 @@ _hits = {}
 
 TXT = {
  "en": dict(subj="Confirm your email to get your ChatGPT mini-audit (CitedBy)",
-  body="Hello,\n\nYou asked for the CitedBy mini-audit of {site}.\nTo confirm this address, open this link (valid 7 days):\n{c}\n\nAfter you confirm, we ask ChatGPT the questions your buyers ask in your market and email you the result within 24 hours. If many requests are waiting it can take a little longer; we send them in order.\n\nIf this wasn't you, ignore this message: without confirmation we send nothing more and delete the address.\n\nSender: CitedBy, operated by Resale IQ. We use your address only for this audit and one follow-up about it. Unsubscribe and delete the address: {u}\n",
-  ok_q="Address confirmed. Your mini-audit is queued; you will get it by email within 24 hours.", ok_late="Address confirmed. Many requests are waiting today, so yours is queued. You will get it by email, usually within 2 working days.",
+  body="Hello,\n\nYou asked for the CitedBy mini-audit of {site}.\nTo confirm this address, open this link (valid 7 days):\n{c}\n\nAfter you confirm, we ask ChatGPT the questions your buyers ask in your market and email you the result within 2 working days.\n\nIf this wasn't you, ignore this message: without confirmation we send nothing more and delete the address.\n\nSender: CitedBy, operated by Resale IQ. We use your address only for this audit and one follow-up about it. Unsubscribe and delete the address: {u}\n",
+  ok_q="Address confirmed. Your mini-audit is queued; you will get it by email within 2 working days.", confirm_q="Confirm this address and start the mini-audit?", confirm_btn="Confirm",
   bad="Invalid or expired link.", unsub_q="Remove this address and cancel the mini-audit?", unsub_btn="Remove", unsub_ok="Address removed."),
  "fr": dict(subj="Confirmez votre e-mail pour recevoir votre mini-audit ChatGPT (CitedBy)",
-  body="Bonjour,\n\nVous avez demandé le mini-audit CitedBy de {site}.\nPour confirmer cette adresse, ouvrez ce lien (valable 7 jours) :\n{c}\n\nUne fois confirmé, nous posons à ChatGPT les questions de vos acheteurs sur votre marché et vous envoyons le résultat par e-mail sous 24 heures. Si beaucoup de demandes attendent, cela peut prendre un peu plus de temps ; nous les traitons dans l'ordre.\n\nSi ce n'est pas vous, ignorez ce message : sans confirmation, nous n'écrivons plus et supprimons l'adresse.\n\nExpéditeur : CitedBy, exploité par Resale IQ. Nous utilisons votre adresse uniquement pour cet audit et un message de suivi. Se désinscrire et supprimer l'adresse : {u}\n",
-  ok_q="Adresse confirmée. Votre mini-audit est en file ; vous le recevrez par e-mail sous 24 heures.", ok_late="Adresse confirmée. Beaucoup de demandes attendent aujourd'hui : la vôtre est en file. Vous la recevrez par e-mail, en général sous 2 jours ouvrés.",
+  body="Bonjour,\n\nVous avez demandé le mini-audit CitedBy de {site}.\nPour confirmer cette adresse, ouvrez ce lien (valable 7 jours) :\n{c}\n\nUne fois confirmé, nous posons à ChatGPT les questions de vos acheteurs sur votre marché et vous envoyons le résultat par e-mail sous 2 jours ouvrés.\n\nSi ce n'est pas vous, ignorez ce message : sans confirmation, nous n'écrivons plus et supprimons l'adresse.\n\nExpéditeur : CitedBy, exploité par Resale IQ. Nous utilisons votre adresse uniquement pour cet audit et un message de suivi. Se désinscrire et supprimer l'adresse : {u}\n",
+  ok_q="Adresse confirmée. Votre mini-audit est en file ; vous le recevrez par e-mail sous 2 jours ouvrés.", confirm_q="Confirmer cette adresse et lancer le mini-audit ?", confirm_btn="Confirmer",
   bad="Lien invalide ou expiré.", unsub_q="Supprimer cette adresse et annuler le mini-audit ?", unsub_btn="Supprimer", unsub_ok="Adresse supprimée."),
  "nl": dict(subj="Bevestig je e-mailadres voor je ChatGPT-miniaudit (CitedBy)",
-  body="Hallo,\n\nJe vroeg de CitedBy-miniaudit van {site} aan.\nOm dit adres te bevestigen, open je deze link (7 dagen geldig):\n{c}\n\nNa je bevestiging stellen we ChatGPT de vragen die jouw kopers in jouw markt stellen en mailen we je het resultaat binnen 24 uur. Wachten er veel aanvragen, dan kan het iets langer duren; we behandelen ze op volgorde.\n\nWas jij dit niet? Negeer dan dit bericht: zonder bevestiging sturen we niets meer en wissen we het adres.\n\nAfzender: CitedBy, uitgebaat door Resale IQ. We gebruiken je adres alleen voor deze audit en één opvolgbericht. Uitschrijven en adres wissen: {u}\n",
-  ok_q="Adres bevestigd. Je miniaudit staat in de wachtrij; je krijgt hem binnen 24 uur per e-mail.", ok_late="Adres bevestigd. Vandaag wachten veel aanvragen, dus de jouwe staat in de wachtrij. Je krijgt hem per e-mail, meestal binnen 2 werkdagen.",
+  body="Hallo,\n\nJe vroeg de CitedBy-miniaudit van {site} aan.\nOm dit adres te bevestigen, open je deze link (7 dagen geldig):\n{c}\n\nNa je bevestiging stellen we ChatGPT de vragen die jouw kopers in jouw markt stellen en mailen we je het resultaat binnen 2 werkdagen.\n\nWas jij dit niet? Negeer dan dit bericht: zonder bevestiging sturen we niets meer en wissen we het adres.\n\nAfzender: CitedBy, uitgebaat door Resale IQ. We gebruiken je adres alleen voor deze audit en één opvolgbericht. Uitschrijven en adres wissen: {u}\n",
+  ok_q="Adres bevestigd. Je miniaudit staat in de wachtrij; je krijgt hem binnen 2 werkdagen per e-mail.", confirm_q="Dit adres bevestigen en de miniaudit starten?", confirm_btn="Bevestigen",
   bad="Ongeldige of verlopen link.", unsub_q="Dit adres wissen en de miniaudit annuleren?", unsub_btn="Wissen", unsub_ok="Adres gewist."),
 }
 
@@ -109,6 +111,7 @@ def purge_expired(now=None):
     now = int(now or time.time())
     with _lock:
         cur = _db.execute("DELETE FROM request WHERE (confirmed_ts IS NULL AND ts < ?) OR ts < ?", (now - UNCONFIRMED_TTL, now - MAX_AGE))
+        _db.execute("DELETE FROM mail_log WHERE ts < ?", (now - 86400,))
         _db.commit()
     print("retention: deleted", cur.rowcount, "rows", flush=True)
 
@@ -220,6 +223,9 @@ def handle_request(data, ip):
         _db.commit()
         if conf or now - last < 600:
             return True
+        if _db.execute("SELECT count(*) FROM mail_log WHERE email=? AND ts>?", (email, now - 86400)).fetchone()[0] >= MAILS_PER_ADDR_DAY:
+            return True  # nobody can flood a stranger's inbox through this form
+        _db.execute("INSERT INTO mail_log(email,ts) VALUES(?,?)", (email, now))
         _db.execute("UPDATE request SET last_mail_ts=? WHERE id=?", (now, rid))
         _db.commit()
     count_event("email_submitted", lang, ip)
@@ -231,7 +237,7 @@ def handle_request(data, ip):
 
 
 def confirm(rid):
-    """Returns (lang, within_cap) or None. Confirmed requests wait in the queue; tools/queue.py releases DAILY_CAP a day."""
+    """Returns lang or None. Confirmed requests wait in the queue; tools/queue.py releases DAILY_CAP a day."""
     today = time.strftime("%Y-%m-%d", time.gmtime())
     with _lock:
         row = _db.execute("SELECT lang,confirmed_ts FROM request WHERE id=?", (rid,)).fetchone()
@@ -240,8 +246,7 @@ def confirm(rid):
         if row[1] is None:
             _db.execute("UPDATE request SET confirmed_ts=?, confirmed_day=? WHERE id=?", (int(time.time()), today, rid))
             _db.commit()
-        n = _db.execute("SELECT count(*) FROM request WHERE confirmed_ts IS NOT NULL AND released_day IS NULL AND id<=?", (rid,)).fetchone()[0]
-    return row[0], n <= DAILY_CAP
+    return row[0]
 
 
 def page(msg, lang="en", form=None):
@@ -257,6 +262,7 @@ CSP = ("default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' dat
 
 
 class H(BaseHTTPRequestHandler):
+    timeout = 15  # idle or half-sent connections must not hold a thread
     server_version = "citedby"
     sys_version = ""
 
@@ -271,7 +277,10 @@ class H(BaseHTTPRequestHandler):
         self.send_response(code)
         self.send_header("Content-Type", ctype)
         self.send_header("Content-Length", str(len(body)))
-        self.send_header("Cache-Control", "public, max-age=300" if code == 200 and not ctype.startswith("application/json") else "no-store")
+        cache = "no-store"
+        if code == 200 and not self.path.startswith("/api/"):
+            cache = "public, max-age=604800" if self.path.split("?")[0].endswith((".css", ".js", ".svg", ".png", ".ico")) else "public, max-age=300"
+        self.send_header("Cache-Control", cache)
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("Referrer-Policy", "strict-origin-when-cross-origin")
         self.send_header("Content-Security-Policy", CSP)
@@ -284,8 +293,13 @@ class H(BaseHTTPRequestHandler):
 
     def static(self, path):
         rel = ROUTES.get(path) or path.lstrip("/")
-        full = os.path.realpath(os.path.join(SITE_DIR, rel))
-        if not full.startswith(os.path.realpath(SITE_DIR) + os.sep) or not os.path.isfile(full):
+        base = os.path.realpath(SITE_DIR)
+        full = os.path.realpath(os.path.join(base, rel))
+        for cand in (full, full + ".html", os.path.join(full, "index.html")):  # same clean URLs as the old nginx try_files
+            if cand.startswith(base + os.sep) and os.path.isfile(cand):
+                full = cand
+                break
+        if not full.startswith(base + os.sep) or not os.path.isfile(full):
             return self.out(404, page("Not found"))
         ctype = mimetypes.guess_type(full)[0] or "application/octet-stream"
         if ctype.startswith("text/") or ctype in ("application/xml", "application/javascript"):
@@ -301,11 +315,12 @@ class H(BaseHTTPRequestHandler):
         if u.path == "/healthz":
             return self.out(200, b'{"ok":true}', "application/json")
         if u.path == "/api/confirm":
-            rid = read_token(tok, "c")
-            r = confirm(rid) if rid is not None else None
-            if r is None:
+            rid = read_token(tok, "c")  # GET only shows a button: mail scanners fetch links, a person presses the button
+            row = _db.execute("SELECT lang FROM request WHERE id=?", (rid,)).fetchone() if rid is not None else None
+            if not row:
                 return self.out(400, page(TXT["en"]["bad"] + " / " + TXT["fr"]["bad"]))
-            return self.out(200, page(TXT[r[0]]["ok_q" if r[1] else "ok_late"], r[0]))
+            form = f'<form method="post" action="/api/confirm?t={html.escape(tok)}"><button class="btn p">{html.escape(TXT[row[0]]["confirm_btn"])}</button></form>'
+            return self.out(200, page(TXT[row[0]]["confirm_q"], row[0], form))
         if u.path == "/api/unsubscribe":
             rid = read_token(tok, "u")
             if rid is None:
@@ -334,6 +349,12 @@ class H(BaseHTTPRequestHandler):
         except ValueError:
             data = None
         send = lambda code, d: self.out(code, json.dumps(d).encode(), "application/json")
+        if u.path == "/api/confirm":
+            rid = read_token((parse_qs(u.query).get("t") or [""])[0], "c")
+            r = confirm(rid) if rid is not None else None
+            if r is None:
+                return self.out(400, page(TXT["en"]["bad"]))
+            return self.out(200, page(TXT[r]["ok_q"], r))
         if u.path == "/api/unsubscribe":
             rid = read_token((parse_qs(u.query).get("t") or [""])[0], "u")
             if rid is None:

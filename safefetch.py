@@ -17,10 +17,15 @@ class Blocked(Exception):
     """The URL is not allowed (scheme, port, userinfo, private or unresolvable address)."""
 
 
+EMBEDDED_V4 = [ipaddress.ip_network(n) for n in ("64:ff9b::/96", "64:ff9b:1::/48", "::/96", "2002::/16", "2001::/32")]  # IPv6 forms that carry an IPv4 address
+
+
 def addr_ok(ip):
     a = ipaddress.ip_address(ip)
     if getattr(a, "ipv4_mapped", None):
         a = a.ipv4_mapped
+    if a.version == 6 and any(a in n for n in EMBEDDED_V4):
+        return False
     return a.is_global and not a.is_multicast
 
 
@@ -65,6 +70,7 @@ class _Conn(http.client.HTTPConnection):
         self.sock = socket.create_connection((self._ip, self.port), self.timeout)
         if self._tls:
             self.sock = CTX.wrap_socket(self.sock, server_hostname=self.host)
+        self.raw = self.sock  # http.client drops self.sock when the response is "Connection: close"; keep it to set read timeouts
 
 
 def fetch(url, deadline=None, max_body=MAX_BODY, accept_lang="en"):
@@ -93,9 +99,22 @@ def fetch(url, deadline=None, max_body=MAX_BODY, accept_lang="en"):
                 cur = urljoin(cur, r.getheader("Location"))
                 c.close()
                 continue
-            body = r.read(max_body).decode("utf-8", "replace")
+            chunks, got = [], 0
+            while got < max_body:  # the deadline holds while the body is read, so a trickling server cannot pin a slot
+                left = deadline - time.time()
+                if left <= 0:
+                    c.close()
+                    return {"status": 0, "url": cur, "body": "", "error": "timeout"}
+                c.raw.settimeout(min(left, 8))
+                part = r.read1(min(65536, max_body - got))
+                if not part:
+                    break
+                chunks.append(part)
+                got += len(part)
             c.close()
-            return {"status": r.status, "url": cur, "body": body, "error": ""}
+            return {"status": r.status, "url": cur, "body": b"".join(chunks).decode("utf-8", "replace"), "error": ""}
+        except (TimeoutError, socket.timeout):
+            return {"status": 0, "url": cur, "body": "", "error": "timeout"}
         except Exception as e:  # network errors are data, not crashes
             return {"status": 0, "url": cur, "body": "", "error": type(e).__name__}
     return {"status": 0, "url": cur, "body": "", "error": "too_many_redirects"}
