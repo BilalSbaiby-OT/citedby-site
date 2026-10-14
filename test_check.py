@@ -121,6 +121,24 @@ class SSRF(unittest.TestCase):
         self.assertNotEqual(k("a+x@example.com"), k("b@example.com")); self.assertEqual(k("a+x@example.com"), "a@example.com")
         self.assertNotEqual(k("a.b@example.com"), k("ab@example.com"))                       # dots count outside Gmail
 
+    def test_https_connection_close(self):                                                  # regression: live checks all failed as "unreachable" over HTTPS
+        import ssl, subprocess, tempfile
+        d = tempfile.mkdtemp(); crt, key = d + "/c.pem", d + "/k.pem"
+        subprocess.run(["openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-keyout", key, "-out", crt, "-days", "1", "-subj", "/CN=localhost"], check=True, capture_output=True)
+        h = type("S", (BaseHTTPRequestHandler,), {"protocol_version": "HTTP/1.1", "log_message": lambda *a: None,
+            "do_GET": lambda s: (s.send_response(200), s.send_header("Connection", "close"), s.end_headers(), s.wfile.write(b"hello https"))})
+        srv = HTTPServer(("127.0.0.1", 0), h); sc = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER); sc.load_cert_chain(crt, key)
+        srv.socket = sc.wrap_socket(srv.socket, server_side=True)
+        threading.Thread(target=srv.serve_forever, daemon=True).start(); port = srv.server_port
+        cc = ssl.create_default_context(); cc.check_hostname = False; cc.load_verify_locations(crt)
+        orig, orig_parse, orig_ctx = safefetch.addr_ok, safefetch.parse, safefetch.CTX
+        safefetch.addr_ok = lambda ip: True; safefetch.CTX = cc
+        safefetch.parse = lambda u: (safefetch.urlsplit(u), port)
+        try:
+            r = safefetch.fetch(f"https://127.0.0.1:{port}/")
+            self.assertEqual((r["status"], r["body"], r["error"]), (200, "hello https", ""))
+        finally: safefetch.addr_ok, safefetch.parse, safefetch.CTX = orig, orig_parse, orig_ctx; srv.shutdown()
+
     def test_body_cap(self):
         srv = HTTPServer(("127.0.0.1", 0), type("B", (BaseHTTPRequestHandler,), {"do_GET": lambda s: (s.send_response(200), s.end_headers(), s.wfile.write(b"a" * 5_000_000)), "log_message": lambda *a: None}))
         threading.Thread(target=srv.serve_forever, daemon=True).start(); port = srv.server_port
