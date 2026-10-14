@@ -69,7 +69,7 @@ td:last-child{color:var(--correction);font-weight:600}
 
 /* Pricing is a ledger. Fix Pack carries the weight. */
 .ledger{border-top:2px solid var(--navy)}
-.row{display:grid;grid-template-columns:1fr auto;gap:var(--s2) var(--s8);padding:var(--s6) 0 var(--s6) var(--s4);border-bottom:1px solid var(--rule)}
+.row{display:grid;grid-template-columns:1fr minmax(200px,16rem);gap:var(--s2) var(--s8);padding:var(--s6) 0 var(--s6) var(--s4);border-bottom:1px solid var(--rule)}
 .row h3{margin-bottom:var(--s2)}
 .row ul{margin:var(--s3) 0 0;padding-left:20px;font:400 16px/1.5 var(--sans)}
 .row li{margin-bottom:var(--s1)}
