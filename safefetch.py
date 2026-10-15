@@ -30,14 +30,38 @@ def addr_ok(ip):
     return a.is_global and not a.is_multicast
 
 
-def resolve_public(host, port):
-    """Return one validated address for host; raise Blocked if any address is non-public."""
+class DnsTimeout(Exception):
+    """The resolver did not answer inside the caller's deadline."""
+
+
+def _getaddrinfo(host, port, left):
+    if left is None:
+        return socket.getaddrinfo(host, port, type=socket.SOCK_STREAM)
+    box = {}
+    def work():
+        try:
+            box["r"] = socket.getaddrinfo(host, port, type=socket.SOCK_STREAM)
+        except Exception as e:
+            box["e"] = e
+    t = threading.Thread(target=work, daemon=True)  # getaddrinfo cannot be interrupted: we stop waiting, the thread ends with the resolver's own timeout
+    t.start()
+    t.join(max(0, left))
+    if t.is_alive():
+        raise DnsTimeout()
+    if "e" in box:
+        raise box["e"]
+    return box["r"]
+
+
+def resolve_public(host, port, left=None):
+    """Return one validated address for host; raise Blocked if any address is non-public.
+    With left (seconds), DNS counts against the caller's deadline and DnsTimeout is raised when it runs out."""
     try:
         ipaddress.ip_address(host.strip("[]"))
         infos = [(None, None, None, None, (host.strip("[]"), port))]
     except ValueError:
         try:
-            infos = socket.getaddrinfo(host, port, type=socket.SOCK_STREAM)
+            infos = _getaddrinfo(host, port, left)
         except socket.gaierror:
             raise Blocked("dns")
     ips = [i[4][0] for i in infos]
@@ -80,17 +104,19 @@ class _Conn(http.client.HTTPConnection):
 def fetch(url, deadline=None, max_body=MAX_BODY, accept_lang="en"):
     """GET url following validated redirects. Returns dict(status, url, body, error). Never raises on network errors.
     Raises Blocked only for the first URL; a blocked redirect hop returns error='blocked:<why>'."""
-    deadline = deadline or time.time() + 10
+    deadline = deadline or time.monotonic() + 10  # time.monotonic() value
     cur = url
     for hop in range(MAX_REDIRECTS + 1):
         try:
             u, port = parse(cur)
-            ip = resolve_public(u.hostname, port)
+            ip = resolve_public(u.hostname, port, deadline - time.monotonic())
+        except DnsTimeout:
+            return {"status": 0, "url": cur, "body": "", "error": "timeout"}
         except Blocked as e:
             if hop == 0:
                 raise
             return {"status": 0, "url": cur, "body": "", "error": "blocked:" + str(e)}
-        left = deadline - time.time()
+        left = deadline - time.monotonic()
         if left <= 0:
             return {"status": 0, "url": cur, "body": "", "error": "timeout"}
         c = _Conn(u.hostname, ip, port, min(left, 8), u.scheme == "https")
@@ -101,7 +127,7 @@ def fetch(url, deadline=None, max_body=MAX_BODY, accept_lang="en"):
                 c.raw.shutdown(socket.SHUT_RDWR)
             except Exception:
                 pass
-        timer = threading.Timer(max(0, deadline - time.time()), cut)
+        timer = threading.Timer(max(0, deadline - time.monotonic()), cut)
         timer.daemon = True
         timer.start()
         try:
@@ -115,7 +141,7 @@ def fetch(url, deadline=None, max_body=MAX_BODY, accept_lang="en"):
                 continue
             chunks, got = [], 0
             while got < max_body:  # the deadline holds while the body is read, so a trickling server cannot pin a slot
-                left = deadline - time.time()
+                left = deadline - time.monotonic()
                 if left <= 0:
                     c.close()
                     return {"status": 0, "url": cur, "body": "", "error": "timeout"}
@@ -124,14 +150,14 @@ def fetch(url, deadline=None, max_body=MAX_BODY, accept_lang="en"):
                     break
                 chunks.append(part)
                 got += len(part)
-            if time.time() >= deadline:  # the timer cut the connection mid-body: a partial page is not a result
+            if time.monotonic() >= deadline:  # the timer cut the connection mid-body: a partial page is not a result
                 return {"status": 0, "url": cur, "body": "", "error": "timeout"}
             c.close()
             return {"status": r.status, "url": cur, "body": b"".join(chunks).decode("utf-8", "replace"), "error": ""}
         except (TimeoutError, socket.timeout):
             return {"status": 0, "url": cur, "body": "", "error": "timeout"}
         except Exception as e:  # network errors are data, not crashes
-            return {"status": 0, "url": cur, "body": "", "error": "timeout" if time.time() >= deadline - 0.05 else type(e).__name__}
+            return {"status": 0, "url": cur, "body": "", "error": "timeout" if time.monotonic() >= deadline - 0.05 else type(e).__name__}
         finally:
             timer.cancel()
             c.close()

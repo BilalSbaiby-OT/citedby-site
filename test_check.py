@@ -75,7 +75,7 @@ class SSRF(unittest.TestCase):
         safefetch.addr_ok = lambda ip: True
         safefetch.parse = lambda u: (safefetch.urlsplit(u), port)
         try:
-            t0 = time.time(); r = safefetch.fetch(f"http://127.0.0.1:{port}/", deadline=time.time() + 3)
+            t0 = time.time(); r = safefetch.fetch(f"http://127.0.0.1:{port}/", deadline=time.monotonic() + 3)
             self.assertLess(time.time() - t0, 6); self.assertEqual(r["error"], "timeout")
         finally: safefetch.addr_ok, safefetch.parse = orig, orig_parse
 
@@ -103,7 +103,7 @@ class SSRF(unittest.TestCase):
         safefetch.addr_ok = lambda ip: True
         safefetch.parse = lambda u: (safefetch.urlsplit(u), port)
         try:
-            t0 = time.time(); r = safefetch.fetch(f"http://127.0.0.1:{port}/", deadline=time.time() + 3)
+            t0 = time.time(); r = safefetch.fetch(f"http://127.0.0.1:{port}/", deadline=time.monotonic() + 3)
             return time.time() - t0, r
         finally: safefetch.addr_ok, safefetch.parse = orig, orig_parse; ls.close()
 
@@ -150,13 +150,22 @@ class SSRF(unittest.TestCase):
             time.sleep(0.5); return orig_cc(addr, timeout, *a, **k)
         safefetch.addr_ok = lambda ip: True; safefetch.parse = lambda u: (safefetch.urlsplit(u), port); socket.create_connection = slow
         try:
-            r = safefetch.fetch(f"http://127.0.0.1:{port}/", deadline=time.time() + 0.3)
+            r = safefetch.fetch(f"http://127.0.0.1:{port}/", deadline=time.monotonic() + 0.3)
             self.assertEqual(r["error"], "timeout")
             conn, _ = ls.accept(); conn.settimeout(0.5)                                      # without the fix the request is sent on the late socket
             try: got = conn.recv(100)
             except socket.timeout: got = b""
             conn.close(); self.assertNotIn(b"GET", got)
         finally: safefetch.addr_ok, safefetch.parse, socket.create_connection = orig, orig_parse, orig_cc; ls.close()
+
+    def test_stalled_resolver_counts_in_deadline(self):                                      # RES-733: slow DNS must not overshoot the fetch deadline
+        import time
+        orig = socket.getaddrinfo
+        socket.getaddrinfo = lambda *a, **k: time.sleep(3) or []
+        try:
+            t0 = time.monotonic(); r = safefetch.fetch("http://slow-ns.example.com/", deadline=time.monotonic() + 1)
+            self.assertLess(time.monotonic() - t0, 1.5); self.assertEqual(r["error"], "timeout")
+        finally: socket.getaddrinfo = orig
 
     def test_body_cap(self):
         srv = HTTPServer(("127.0.0.1", 0), type("B", (BaseHTTPRequestHandler,), {"do_GET": lambda s: (s.send_response(200), s.end_headers(), s.wfile.write(b"a" * 5_000_000)), "log_message": lambda *a: None}))
