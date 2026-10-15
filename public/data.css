@@ -33,3 +33,5 @@ ul.lv li{padding:var(--s3) 0;border-top:1px solid var(--rule);margin:0}
  .pm{display:inline}
  .dp .cta{padding:var(--s6) var(--s4)}
 }
+
+.retired{border-left:3px solid var(--red,#B3261E);padding:var(--s2) var(--s4);margin:0 0 var(--s4);font:400 15px/1.5 var(--sans);color:var(--navy);background:var(--paper2,transparent)}
