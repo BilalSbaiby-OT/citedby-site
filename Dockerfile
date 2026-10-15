@@ -3,6 +3,8 @@ WORKDIR /app
 COPY server.py safefetch.py doorcheck.py ./
 COPY data/ data/
 COPY public/ public/
+ARG GIT_SHA=unknown
+RUN echo "$GIT_SHA" > /app/DEPLOY_ID
 RUN useradd -r -u 10001 app && mkdir /data && chown app /data
 USER app
 ENV DATA_DIR=/data PORT=8080

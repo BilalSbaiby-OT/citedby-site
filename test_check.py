@@ -283,6 +283,46 @@ class Api(unittest.TestCase):
         self.assertEqual(codes, [400, 400, 429])
 
 
+class Health(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.srv = server.ThreadingHTTPServer(("127.0.0.1", 0), server.H); cls.base = "http://127.0.0.1:%d" % cls.srv.server_port
+        threading.Thread(target=cls.srv.serve_forever, daemon=True).start()
+
+    @classmethod
+    def tearDownClass(cls): cls.srv.shutdown()
+
+    def get(self, path):
+        try:
+            r = urllib.request.urlopen(self.base + path); return r.status, r.headers, json.loads(r.read())
+        except urllib.error.HTTPError as e: return e.code, e.headers, json.loads(e.read())
+
+    def test_health_ok(self):
+        code, h, d = self.get("/health")
+        self.assertEqual(code, 200); self.assertEqual(d["status"], "ok"); self.assertEqual(d["db"], "ok"); self.assertIn("time", d)
+        self.assertTrue(h["Content-Type"].startswith("application/json")); self.assertEqual(h["Cache-Control"], "no-store")
+
+    def test_health_503_when_db_unreadable(self):
+        import shutil, tempfile
+        d = tempfile.mkdtemp(); bad = os.path.join(d, "copy.db"); shutil.copy(os.path.join(server.DATA_DIR, "check.db"), bad)
+        orig = server.DB_PATH
+        try:
+            open(bad, "wb").write(b"not a database" * 100)   # unreadable as SQLite
+            server.DB_PATH = bad
+            code, _, body = self.get("/health"); self.assertEqual((code, body["status"], body["db"]), (503, "error", "error"))
+            server.DB_PATH = os.path.join(d, "missing.db")   # file gone: must not be created by the probe
+            code, _, body = self.get("/health"); self.assertEqual(code, 503); self.assertFalse(os.path.exists(server.DB_PATH))
+        finally: server.DB_PATH = orig
+        self.assertEqual(self.get("/health")[0], 200)
+
+    def test_deploy_id_comes_from_the_build(self):
+        orig = server.DEPLOY_ID
+        try:
+            for v in ("abc1234", "def5678"):
+                server.DEPLOY_ID = v; code, _, d = self.get("/deploy-id"); self.assertEqual((code, d["deploy_id"]), (200, v))
+        finally: server.DEPLOY_ID = orig
+
+
 class Parsing(unittest.TestCase):
     def test_productgroup_variant(self):
         h = '<script type="application/ld+json">{"@type":"ProductGroup","hasVariant":[{"@type":"Product","gtin13":"1234567890123","offers":{"@type":"Offer","price":"9.5","availability":"InStock"}}]}</script>'
