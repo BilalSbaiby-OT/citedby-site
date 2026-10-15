@@ -28,6 +28,8 @@ def live_engines(path, now=None):
     out = []
     for r in rows:
         try:
+            if r.get("group", "web") != "web":  # knowledge-only rows (no web search) never join the "web search on" line
+                continue
             t = parse_ts(r["tested"])
             if r["name"] and datetime.timedelta(0) <= now - t < MAX_AGE:
                 out.append({"name": str(r["name"]), "route": str(r.get("route", "")), "tested": t})

@@ -39,6 +39,21 @@ class T(unittest.TestCase):
         self.assertEqual(home.live_engines("/nonexistent.json", NOW), [])
         self.assertEqual(home.live_engines(engines_file([{"name": "X", "tested": "not a date"}, {"tested": "2026-10-16T08:00:00Z"}]), NOW), [])
 
+    def test_knowledge_group_never_in_web_search_line(self):
+        t = (NOW - datetime.timedelta(hours=2)).isoformat()
+        rows = [{"name": "Claude", "route": "API", "tested": t, "group": "web"},
+                {"name": "Gemini", "route": "no tools", "tested": t, "group": "knowledge"},
+                {"name": "Legacy", "route": "API", "tested": t}]
+        got = [e["name"] for e in home.live_engines(engines_file(rows), NOW)]
+        self.assertEqual(got, ["Claude", "Legacy"])
+        probe = os.path.expanduser("~/work/ventures/citedby/engines.json")
+        if os.path.exists(probe):
+            raw = json.load(open(probe))
+            raw["engines"] = [dict(r, tested=t) for r in raw["engines"]]
+            f = tempfile.NamedTemporaryFile("w", suffix=".json", delete=False); json.dump(raw, f); f.close()
+            h = home.render("en", home.live_engines(f.name, NOW))
+            self.assertNotIn("Gemini", h)
+
     def test_empty_renders_fallback_and_no_buy_button(self):
         h = home.render("en", [])
         self.assertIn("We are connecting assistants", h)
