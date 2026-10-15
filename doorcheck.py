@@ -89,7 +89,7 @@ def find_product_url(root, home_html, fetch):
 
 def run(raw_url, lang="en", timeout=18):
     root = normalize(raw_url)
-    deadline = time.time() + timeout
+    deadline = time.monotonic() + timeout
     f = lambda url: safefetch.fetch(url, deadline=deadline, accept_lang=lang)
     with ThreadPoolExecutor(3) as ex:
         fr, fh, fl = ex.submit(f, root + "/robots.txt"), ex.submit(f, root + "/"), ex.submit(f, root + "/llms.txt")
@@ -116,7 +116,7 @@ def run(raw_url, lang="en", timeout=18):
     add("org_schema", "pass" if types & ORG_TYPES else "fail", found=sorted(types)[:8])
     # 4. product page: Product JSON-LD, price, availability, GTIN
     purl = find_product_url(root, home["body"], f)
-    if purl and time.time() < deadline:
+    if purl and time.monotonic() < deadline:
         page = f(purl)
         has, price, avail, gtin = product_facts(page["body"]) if page["status"] == 200 else (False,) * 4
         out["product_page"] = purl
