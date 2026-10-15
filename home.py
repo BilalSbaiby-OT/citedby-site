@@ -112,8 +112,8 @@ T = {
  ),
  "fr": dict(
   path="/fr", other="/", skip="Aller au contenu", home="Accueil CitedBy", nav=("Test gratuit", "Exemple d'audit", "Tarifs", "FAQ"),
-  title="CitedBy : qui les assistants IA citent-ils à la place de votre boutique ?",
-  desc="Nous posons à des assistants IA les questions de vos acheteurs, comptons qui est cité, corrigeons vos pages et recomptons à 30 jours. Test gratuit, puis Fix Pack à 390 €, payé une fois.",
+  title="CitedBy : qui les IA citent-elles à votre place ?",
+  desc="Nous posons aux assistants IA les questions de vos acheteurs, comptons qui est cité, corrigeons vos pages. Test gratuit, puis Fix Pack à 390 €, payé une fois.",
   ogt="Qui les assistants IA citent-ils à la place de votre boutique ?", ogd="Test gratuit de votre boutique. Fix Pack à 390 € payé une fois, avec un recomptage à 30 jours.",
   eyebrow="Visibilité dans les assistants IA pour boutiques en ligne",
   h1="Un assistant IA envoie-t-il vos clients chez un concurrent ?",
