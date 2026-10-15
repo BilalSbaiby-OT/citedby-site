@@ -1,7 +1,7 @@
 """CitedBy: static site plus the free check. Standard library only.
 
 Routes: GET static pages (clean URLs), POST /api/check, POST /api/request, GET|POST /api/confirm, GET|POST /api/unsubscribe,
-POST /api/event, GET /healthz. Data: one SQLite file under DATA_DIR. No cookies. Events are anonymous counters.
+POST /api/event, GET /healthz, GET /health (status + db read, 503 on failure), GET /deploy-id (commit from the build). Data: one SQLite file under DATA_DIR. No cookies. Events are anonymous counters.
 """
 import base64, hashlib, hmac, html, json, mimetypes, os, re, sqlite3, threading, time, urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -30,11 +30,19 @@ LANGS = ("en", "fr", "nl")
 COUNTRIES = ("BE", "FR", "NL", "IE", "DE", "ES", "GB", "OTHER")
 NICHES = ("coffee", "tea", "beauty", "mattress", "supplements", "other")
 EMAIL_RE = re.compile(r"^[^@\s]{1,64}@[^@\s]{1,255}\.[^@\s]{2,}$")
+def _deploy_id():  # commit sha from the image build (Dockerfile ARG GIT_SHA); env wins, then the baked file
+    v = os.environ.get("DEPLOY_ID", "").strip()
+    if not v:
+        try: v = open(os.path.join(HERE, "DEPLOY_ID")).read().strip()
+        except OSError: v = ""
+    return v or "unknown"
+DEPLOY_ID = _deploy_id()
 SNAPSHOTS = json.load(open(os.path.join(HERE, "data", "snapshots.json")))
 EVENTS = ("check_start", "check_complete", "email_submitted", "fixpack_click")
 
 os.makedirs(DATA_DIR, exist_ok=True)
-_db = sqlite3.connect(os.path.join(DATA_DIR, "check.db"), check_same_thread=False)
+DB_PATH = os.path.join(DATA_DIR, "check.db")
+_db = sqlite3.connect(DB_PATH, check_same_thread=False)
 _db.execute("PRAGMA journal_mode=WAL")
 _db.execute("""CREATE TABLE IF NOT EXISTS request(
   id INTEGER PRIMARY KEY, email TEXT NOT NULL, url TEXT NOT NULL, country TEXT, lang TEXT, niche TEXT, summary TEXT,
@@ -294,7 +302,7 @@ class H(BaseHTTPRequestHandler):
         self.send_header("Content-Type", ctype)
         self.send_header("Content-Length", str(len(body)))
         cache = "no-store"
-        if code == 200 and not self.path.startswith("/api/"):
+        if code == 200 and not self.path.startswith(("/api/", "/health", "/deploy-id")):
             cache = "public, max-age=604800" if self.path.split("?")[0].endswith((".css", ".js", ".svg", ".png", ".ico", ".woff2")) else "public, max-age=300"
         self.send_header("Cache-Control", cache)
         self.send_header("X-Content-Type-Options", "nosniff")
@@ -330,6 +338,18 @@ class H(BaseHTTPRequestHandler):
     def do_GET(self):
         u = urlparse(self.path)
         tok = (parse_qs(u.query).get("t") or [""])[0]
+        if u.path == "/health":
+            try:  # a fresh read-only connection: fails if the file is missing, unreadable or corrupt, never creates it
+                c = sqlite3.connect("file:%s?mode=ro" % DB_PATH, uri=True, timeout=2)
+                try: c.execute("SELECT count(*) FROM event_count").fetchone()
+                finally: c.close()
+                ok = True
+            except sqlite3.Error:
+                ok = False
+            body = {"status": "ok" if ok else "error", "db": "ok" if ok else "error", "time": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+            return self.out(200 if ok else 503, json.dumps(body).encode(), "application/json")
+        if u.path == "/deploy-id":
+            return self.out(200, json.dumps({"deploy_id": DEPLOY_ID}).encode(), "application/json")
         if u.path == "/healthz":
             return self.out(200, b'{"ok":true}', "application/json")
         if u.path == "/api/confirm":
