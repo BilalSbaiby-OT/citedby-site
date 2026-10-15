@@ -27,7 +27,7 @@ page = f'''<!doctype html>
 <p class="dateline">Sample audit. Shop anonymised, answers real. Run {day}.</p>
 <h1>A Belgian online coffee roaster, named in {s["named"]} of {s["answers"]} answers</h1>
 <p class="ans">We asked {s["assistant"]} {s["questions"]} questions a buyer would ask, in French, each twice. Every answer is kept. The shop was named in {s["named"]} of them and linked in {s["linked"]}. The most-named competitor shop appeared in {s["top_competitor_answers"]} of {s["answers"]}.</p>
-<p class="src">Official API with web search, {day}. Answers vary between runs. The sites below are the ones the assistant linked, not our opinion. This shows the report format; yours covers your own shop and your own market. <a href="/sample-audit.csv">All {s["answers"]} answers as a CSV</a>, with links and times, shop name removed.</p>
+<p class="src">API with web search, {day}. Answers vary between runs. The sites below are the ones the assistant linked, not our opinion. This shows the report format; yours covers your own shop and your own market. <a href="/sample-audit.csv">All {s["answers"]} answers as a CSV</a>, with links and times, shop name removed.</p>
 
 <section><h2>1. Sites {E(s["assistant"])} linked, question by question</h2>
 <div class="tw"><table><thead><tr><th scope="col">A buyer asks</th><th scope="col">Sites linked, try 1</th><th scope="col">Sites linked, try 2</th><th scope="col">This shop</th></tr></thead><tbody>

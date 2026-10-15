@@ -205,7 +205,7 @@ def handle_check(data, ip):
     if res.get("reachable"):
         count_event("check_complete", lang, ip)
     res["ok"] = True
-    res["snapshot"] = snapshot(country, lang, niche)
+    res["snapshot"] = None  # ChatGPT-app snapshots retired (RES-852)
     return 200, res
 
 
