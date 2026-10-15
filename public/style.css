@@ -66,6 +66,7 @@ td:last-child{color:var(--correction);font-weight:600}
 .bigline{font-size:24px;line-height:1.35;color:var(--navy)}
 .bigline .zero{font-family:var(--serif)}
 .note{font:400 14px/1.5 var(--sans);color:var(--muted)}
+.engines{font:400 14px/1.5 var(--sans);color:var(--muted);margin:0 0 var(--s4)}.engines b{color:var(--navy);font-weight:600}
 
 /* Pricing is a ledger. Fix Pack carries the weight. */
 .ledger{border-top:2px solid var(--navy)}
