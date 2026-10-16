@@ -81,6 +81,7 @@ T = {
       "Any assistant we add before your recount is counted in it, free"],
   anchor="For comparison: a GEO audit report starts at €595 at a Belgian agency, and a tracker that re-runs 100 questions costs $189 a month. Neither includes the changes made on your pages. List prices read on 13 Oct 2026; scopes differ.",
   buy="Buy the Fix Pack, €390",
+  g_btn="Late changes: full refund, you do not have to ask. No rise at day 30: 30 more days free.",
   g_h="Two guarantees, in writing",
   g1=("Late changes, full refund.", "If you give us access (a Shopify collaborator request or a CMS login), the changes are live within 7 days. If you choose ready-to-paste files, you get them within 7 days. If we miss either date, we refund the €390. You do not have to ask."),
   g2=("No rise at day 30, 30 more days free.", "We ask the same questions again, each twice, and count the same way as in your first audit. If your shop is named in no more answers than before, we keep working another 30 days at no charge."),
@@ -145,6 +146,7 @@ T = {
       "Tout assistant ajouté avant votre recomptage y est compté, gratuitement"],
   anchor="À titre de comparaison : un audit GEO commence à 595 € chez une agence belge, et un outil qui relance 100 questions coûte 189 $ par mois. Ni l'un ni l'autre n'inclut les changements faits sur vos pages. Prix catalogue relevés le 13 oct. 2026 ; les périmètres diffèrent.",
   buy="Acheter le Fix Pack, 390 €",
+  g_btn="Changements en retard : remboursement total, sans rien demander. Pas de hausse à 30 jours : 30 jours de plus offerts.",
   g_h="Deux garanties, par écrit",
   g1=("Changements en retard, remboursement total.", "Si vous nous donnez l'accès (une demande de collaborateur Shopify ou un accès CMS), les changements sont en ligne sous 7 jours. Si vous choisissez les fichiers prêts à coller, vous les recevez sous 7 jours. Si nous manquons l'une des deux dates, nous vous remboursons les 390 €. Vous n'avez rien à demander."),
   g2=("Pas de hausse à 30 jours, 30 jours de plus offerts.", "Nous reposons les mêmes questions, deux fois chacune, et comptons comme dans votre premier audit. Si votre boutique n'est pas citée dans plus de réponses qu'avant, nous continuons à travailler 30 jours de plus sans frais."),
@@ -266,7 +268,7 @@ def render(lang, engines, css_ver="", check_css_ver=""):
 <p>{E(t["g_no"])}</p></div>
 <div class="after"><h4>{E(t["after_h"])}</h4>
 <ol>{after}</ol></div></div>
-<div class="buy"><div class="price">{E(t["fp_price"])} <small>{E(t["fp_small"])}</small></div>{price_btn}<p class="note" style="margin:var(--s3) 0 0">{E(t["cap"])}</p></div></div>
+<div class="buy"><div class="price">{E(t["fp_price"])} <small>{E(t["fp_small"])}</small></div>{price_btn}<p class="note" style="margin:var(--s3) 0 0"><b>{E(t["g_btn"])}</b></p><p class="note" style="margin:var(--s3) 0 0">{E(t["cap"])}</p></div></div>
 
 <div class="row"><div><h3>{E(t["fc_h"])}</h3>
 <ul>{li(t["fc"])}</ul></div>
