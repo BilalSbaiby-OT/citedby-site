@@ -54,6 +54,18 @@ class T(unittest.TestCase):
             h = home.render("en", home.live_engines(f.name, NOW))
             self.assertNotIn("Gemini", h)
 
+    def test_knowledge_line_own_label_en_fr(self):
+        t = (NOW - datetime.timedelta(hours=2)).isoformat()
+        f = engines_file([{"name": "Claude", "tested": t, "group": "web"}, {"name": "Gemini", "tested": t, "group": "knowledge"}])
+        k = home.live_engines(f, NOW, group="knowledge")
+        self.assertEqual([e["name"] for e in k], ["Gemini"])
+        en = home.render("en", home.live_engines(f, NOW), knowledge=k)
+        self.assertIn("own knowledge, no web search: <b>Gemini</b>", en)
+        self.assertIn("<b>Claude</b>. Each one through an API, with web search on.", en)
+        fr = home.render("fr", home.live_engines(f, NOW), knowledge=k)
+        self.assertIn("sans recherche web : <b>Gemini</b>", fr)
+        self.assertNotIn("Gemini", home.render("en", home.live_engines(f, NOW)))
+
     def test_empty_renders_fallback_and_no_buy_button(self):
         h = home.render("en", [])
         self.assertIn("We are connecting assistants", h)

@@ -18,7 +18,7 @@ def parse_ts(s):
     return d if d.tzinfo else d.replace(tzinfo=datetime.timezone.utc)
 
 
-def live_engines(path, now=None):
+def live_engines(path, now=None, group="web"):
     """Engines whose last successful web-grounded test is under 24 hours old. Bad or missing file: none."""
     now = now or datetime.datetime.now(datetime.timezone.utc)
     try:
@@ -28,7 +28,7 @@ def live_engines(path, now=None):
     out = []
     for r in rows:
         try:
-            if r.get("group", "web") != "web":  # knowledge-only rows (no web search) never join the "web search on" line
+            if r.get("group", "web") != group:  # knowledge-only rows (no web search) never join the "web search on" line
                 continue
             t = parse_ts(r["tested"])
             if r["name"] and datetime.timedelta(0) <= now - t < MAX_AGE:
@@ -57,6 +57,7 @@ T = {
   h1="Is an AI assistant sending your customers to a competitor?",
   lede="We ask AI assistants the questions your buyers ask, in their language, and count who gets named. Then we fix what keeps your shop out of the answers and count again 30 days later.",
   engines="Assistants we measured on {date}: {names}. Each one through an API, with web search on.",
+  engines_k="Also asked on {date}, answers from the assistant's own knowledge, no web search: {names}.",
   engines_none="We are connecting assistants. Write to us before you buy.",
   go="Check my shop, free", sample_link="Read a sample mini-audit",
   micro="The check takes about 10 seconds and needs no email. Want the 16-answer mini-audit? Leave your email after the check; it arrives within 2 working days.",
@@ -122,6 +123,7 @@ T = {
   h1="Un assistant IA envoie-t-il vos clients chez un concurrent ?",
   lede="Nous posons aux assistants IA les questions de vos acheteurs, dans leur langue, et nous comptons qui est cité. Puis nous corrigeons ce qui vous écarte des réponses et nous recomptons 30 jours plus tard.",
   engines="Assistants mesurés le {date} : {names}. Chacun par une API, recherche web activée.",
+  engines_k="Aussi interrogé le {date}, réponses tirées des connaissances propres de l'assistant, sans recherche web : {names}.",
   engines_none="Nous connectons des assistants. Écrivez-nous avant d'acheter.",
   go="Tester ma boutique, gratuitement", sample_link="Lire un exemple de mini-audit",
   micro="Le test prend environ 10 secondes, sans e-mail. Vous voulez le mini-audit de 16 réponses ? Laissez votre e-mail après le test ; il arrive sous 2 jours ouvrés.",
@@ -184,13 +186,17 @@ T = {
 def li(items): return "".join(f"<li>{E(x)}</li>" for x in items)
 
 
-def render(lang, engines, css_ver="", check_css_ver=""):
+def render(lang, engines, css_ver="", check_css_ver="", knowledge=()):
     t = T[lang]
     live = bool(engines)
     day = max((e["tested"] for e in engines), default=None)
     names = [e["name"] for e in engines]
     if live:
         eline = f'{E(t["engines"].split("{date}")[0])}<time datetime="{day.isoformat(timespec="minutes")}">{E(fmt_date(day, lang))}</time>{E(t["engines"].split("{date}")[1].split("{names}")[0])}<b>{E(join_names(names, lang))}</b>{E(t["engines"].split("{names}")[1])}'
+        if knowledge:
+            kd = max(e["tested"] for e in knowledge)
+            a, b = t["engines_k"].split("{date}"); b1, b2 = b.split("{names}")
+            eline += f'</p><p class="engines" id="engines-knowledge">{E(a)}<time datetime="{kd.isoformat(timespec="minutes")}">{E(fmt_date(kd, lang))}</time>{E(b1)}<b>{E(join_names([e["name"] for e in knowledge], lang))}</b>{E(b2)}'
     else:
         eline = E(t["engines_none"])
     s = SAMPLE
