@@ -7,7 +7,7 @@ import base64, hashlib, hmac, html, json, mimetypes, os, re, sqlite3, threading,
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 
-import doorcheck, home, safefetch
+import doorcheck, home, proxy, safefetch
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 CONSENT_VERSION = "2026-10-15.v1"
@@ -350,6 +350,7 @@ class H(BaseHTTPRequestHandler):
     def do_HEAD(self): self.do_GET()
 
     def do_GET(self):
+        if proxy.handle(self, "GET"): return
         u = urlparse(self.path)
         tok = (parse_qs(u.query).get("t") or [""])[0]
         if u.path == "/health":
@@ -361,6 +362,8 @@ class H(BaseHTTPRequestHandler):
             except sqlite3.Error:
                 ok = False
             body = {"status": "ok" if ok else "error", "db": "ok" if ok else "error", "time": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+            app = proxy.app_health()  # the app's own status and deploy id; its failure never fails the site
+            if app: body["app"] = app
             return self.out(200 if ok else 503, json.dumps(body).encode(), "application/json")
         if u.path == "/deploy-id":
             return self.out(200, json.dumps({"deploy_id": DEPLOY_ID}).encode(), "application/json")
@@ -386,6 +389,7 @@ class H(BaseHTTPRequestHandler):
         self.static(u.path)
 
     def do_POST(self):
+        if proxy.handle(self, "POST"): return
         u = urlparse(self.path)
         try:
             n = int(self.headers.get("Content-Length") or 0)
