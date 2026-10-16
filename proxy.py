@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 
 UPSTREAM = os.environ.get("APP_UPSTREAM", "").rstrip("/")
 ROUTES = {
-    "GET": re.compile(r"/(instant|plans|dashboard|account|api/account/export|api/snapshot/\d+|login/[A-Za-z0-9_-]{20,64}|recount/[A-Za-z0-9_-]{20,64})"),
+    "GET": re.compile(r"/(instant|plans|dashboard|account|api/account/export|api/snapshot/(\d+|[A-Za-z0-9_-]{16,64})|login/[A-Za-z0-9_-]{20,64}|recount/[A-Za-z0-9_-]{20,64})"),
     "POST": re.compile(r"/(api/snapshot|api/account/(link|delete)|api/portal|api/checkout|login/[A-Za-z0-9_-]{20,64})"),
 }
 PASS = ("Content-Type", "Cache-Control", "Set-Cookie", "Location", "Referrer-Policy", "Content-Security-Policy")
