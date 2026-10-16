@@ -1,6 +1,6 @@
 FROM python:3.12-slim
 WORKDIR /app
-COPY server.py safefetch.py doorcheck.py ./
+COPY server.py home.py safefetch.py doorcheck.py ./
 COPY data/ data/
 COPY public/ public/
 ARG GIT_SHA=unknown

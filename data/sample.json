@@ -1,0 +1,236 @@
+{
+ "assistant": "Claude",
+ "date": "2026-10-15",
+ "answers": 16,
+ "questions": 8,
+ "named": 1,
+ "linked": 0,
+ "top_competitor_answers": 14,
+ "rows": [
+  {
+   "prompt": "Où acheter café de spécialité en grains en ligne en Belgique ?",
+   "named": [
+    {
+     "name": "Café du Jour",
+     "runs": 2
+    },
+    {
+     "name": "Másalto",
+     "runs": 2
+    },
+    {
+     "name": "Cafés Storme",
+     "runs": 2
+    }
+   ],
+   "shop_runs": 0
+  },
+  {
+   "prompt": "Quelle boutique en ligne de café de spécialité en grains livre vite en Belgique ?",
+   "named": [
+    {
+     "name": "JAVA Coffee",
+     "runs": 2
+    },
+    {
+     "name": "Másalto",
+     "runs": 2
+    },
+    {
+     "name": "Café du Jour",
+     "runs": 2
+    }
+   ],
+   "shop_runs": 0
+  },
+  {
+   "prompt": "Que choisir pour offrir du café de spécialité en grains en Belgique ?",
+   "named": [
+    {
+     "name": "Artisan du Café",
+     "runs": 2
+    },
+    {
+     "name": "Arduina",
+     "runs": 1
+    },
+    {
+     "name": "Torrefactory",
+     "runs": 1
+    }
+   ],
+   "shop_runs": 1
+  }
+ ],
+ "all_rows": [
+  {
+   "prompt": "Où acheter café de spécialité en grains en ligne en Belgique ?",
+   "linked": [
+    [
+     "fr.cafedujour.be",
+     "cafes-storme.be",
+     "masalto.be",
+     "javacoffee.be",
+     "cafeengrains.be"
+    ],
+    [
+     "fr.cafedujour.be",
+     "cafes-storme.be",
+     "cafeengrains.be",
+     "masalto.be",
+     "cafecolombia.be",
+     "en.torrefactory.coffee"
+    ]
+   ],
+   "shop_named": 0
+  },
+  {
+   "prompt": "Quelle est la meilleure boutique en ligne de café de spécialité en grains en Belgique ?",
+   "linked": [
+    [
+     "fr.cafedujour.be",
+     "masalto.be",
+     "cafesdelahaut.be",
+     "javacoffee.be",
+     "cafecolombia.be"
+    ],
+    [
+     "boocoffeeroasters.com",
+     "masalto.be",
+     "cafes-storme.be",
+     "cafesdelahaut.be",
+     "fr.cafedujour.be",
+     "en.torrefactory.coffee"
+    ]
+   ],
+   "shop_named": 0
+  },
+  {
+   "prompt": "Quelles marques de café de spécialité en grains recommandes-tu en Belgique ?",
+   "linked": [
+    [
+     "test-achats.be",
+     "cafori.com",
+     "fr.cafedujour.be",
+     "masalto.be"
+    ],
+    [
+     "test-achats.be",
+     "fr.cafedujour.be",
+     "masalto.be",
+     "cafori.com"
+    ]
+   ],
+   "shop_named": 0
+  },
+  {
+   "prompt": "Quelle boutique en ligne de café de spécialité en grains livre vite en Belgique ?",
+   "linked": [
+    [
+     "javacoffee.be",
+     "masalto.be",
+     "fr.cafedujour.be",
+     "en.torrefactory.coffee",
+     "arduina-torrefacteur.be"
+    ],
+    [
+     "javacoffee.be",
+     "masalto.be",
+     "en.torrefactory.coffee",
+     "fr.cafedujour.be",
+     "arduina-torrefacteur.be",
+     "cafecolombia.be"
+    ]
+   ],
+   "shop_named": 0
+  },
+  {
+   "prompt": "Où trouver du café de spécialité en grains de qualité à bon prix en Belgique ?",
+   "linked": [
+    [
+     "cafeengrains.be",
+     "fr.cafedujour.be",
+     "masalto.be",
+     "carrefour.be"
+    ],
+    [
+     "arduina-torrefacteur.be",
+     "artisanducafe.be",
+     "cafesdelahaut.be",
+     "koffiekan.be",
+     "cafeengrains.be",
+     "fr.cafedujour.be",
+     "masalto.be",
+     "carrefour.be"
+    ]
+   ],
+   "shop_named": 0
+  },
+  {
+   "prompt": "Quels sites de café de spécialité en grains ont les meilleurs avis clients en Belgique ?",
+   "linked": [
+    [
+     "fr.cafedujour.be",
+     "masalto.be",
+     "cafes-vanhove.be",
+     "juste1cafe.com"
+    ],
+    [
+     "fr.cafedujour.be",
+     "masalto.be"
+    ]
+   ],
+   "shop_named": 0
+  },
+  {
+   "prompt": "Quelle alternative aux grandes enseignes pour café de spécialité en grains en Belgique ?",
+   "linked": [
+    [
+     "expertcafe.be",
+     "ensun.io",
+     "cafes-vanhove.be",
+     "cafesdelahaut.be",
+     "santospalace.be",
+     "rtbf.be",
+     "arduina-torrefacteur.be",
+     "artisanducafe.be"
+    ],
+    [
+     "cafes-vanhove.be",
+     "cafes-storme.be",
+     "cafesdelahaut.be",
+     "artisanducafe.be",
+     "arduina-torrefacteur.be",
+     "rtbf.be",
+     "preko.be"
+    ]
+   ],
+   "shop_named": 0
+  },
+  {
+   "prompt": "Que choisir pour offrir du café de spécialité en grains en Belgique ?",
+   "linked": [
+    [
+     "masalto.be",
+     "fr.cafedujour.be",
+     "belgische-eshops-belges.be",
+     "artisanducafe.be",
+     "arduina-torrefacteur.be"
+    ],
+    [
+     "masalto.be",
+     "cafes-vanhove.be",
+     "santospalace.be",
+     "artisanducafe.be",
+     "cafeservka.be",
+     "cafesdelahaut.be",
+     "flair.be",
+     "fr.cafedujour.be",
+     "test-achats.be"
+    ]
+   ],
+   "shop_named": 1
+  }
+ ],
+ "source": "_evidence-res661/real_recount_corica.json"
+}

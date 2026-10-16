@@ -67,7 +67,7 @@ for lang in S:
     print("wrote", os.path.relpath(path))
 
 # Versioned CSS on every static page, so a changed sheet is never served from a week-old cache.
-for name in ("index.html", "legal.html", "privacy.html"):
+for name in ("legal.html", "privacy.html"):
     path = os.path.join(ROOT, name)
     t = re.sub(r'href="/style\.css(\?v=\w+)?"', f'href="/style.css?v={ver("style.css")}"', open(path).read())
     open(path, "w").write(t)

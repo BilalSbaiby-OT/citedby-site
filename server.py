@@ -7,7 +7,7 @@ import base64, hashlib, hmac, html, json, mimetypes, os, re, sqlite3, threading,
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 
-import doorcheck, safefetch
+import doorcheck, home, safefetch
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 CONSENT_VERSION = "2026-10-15.v1"
@@ -57,16 +57,16 @@ UNCONFIRMED_TTL, MAX_AGE = 7 * 86400, 365 * 86400
 _hits = {}
 
 TXT = {
- "en": dict(subj="Confirm your email to get your ChatGPT mini-audit (CitedBy)",
-  body="Hello,\n\nYou asked for the CitedBy mini-audit of {site}.\nTo confirm this address, open this link (valid 7 days):\n{c}\n\nAfter you confirm, we ask ChatGPT the questions your buyers ask in your market and email you the result within 2 working days.\n\nIf this wasn't you, ignore this message: without confirmation we send nothing more and delete the address.\n\nSender: CitedBy, operated by Resale IQ. We use your address only for this audit and one follow-up about it. Unsubscribe and delete the address: {u}\n",
+ "en": dict(subj="Confirm your email to get your AI assistant mini-audit (CitedBy)",
+  body="Hello,\n\nYou asked for the CitedBy mini-audit of {site}.\nTo confirm this address, open this link (valid 7 days):\n{c}\n\nAfter you confirm, we ask AI assistants the questions your buyers ask in your market and email you the result within 2 working days.\n\nIf this wasn't you, ignore this message: without confirmation we send nothing more and delete the address.\n\nSender: CitedBy, operated by Resale IQ. We use your address only for this audit and one follow-up about it. Unsubscribe and delete the address: {u}\n",
   ok_q="Address confirmed. Your mini-audit is queued; you will get it by email within 2 working days.", confirm_q="Confirm this address and start the mini-audit?", confirm_btn="Confirm",
   bad="Invalid or expired link.", unsub_q="Remove this address and cancel the mini-audit?", unsub_btn="Remove", unsub_ok="Address removed."),
- "fr": dict(subj="Confirmez votre e-mail pour recevoir votre mini-audit ChatGPT (CitedBy)",
-  body="Bonjour,\n\nVous avez demandé le mini-audit CitedBy de {site}.\nPour confirmer cette adresse, ouvrez ce lien (valable 7 jours) :\n{c}\n\nUne fois confirmé, nous posons à ChatGPT les questions de vos acheteurs sur votre marché et vous envoyons le résultat par e-mail sous 2 jours ouvrés.\n\nSi ce n'est pas vous, ignorez ce message : sans confirmation, nous n'écrivons plus et supprimons l'adresse.\n\nExpéditeur : CitedBy, exploité par Resale IQ. Nous utilisons votre adresse uniquement pour cet audit et un message de suivi. Se désinscrire et supprimer l'adresse : {u}\n",
+ "fr": dict(subj="Confirmez votre e-mail pour recevoir votre mini-audit assistants IA (CitedBy)",
+  body="Bonjour,\n\nVous avez demandé le mini-audit CitedBy de {site}.\nPour confirmer cette adresse, ouvrez ce lien (valable 7 jours) :\n{c}\n\nUne fois confirmé, nous posons à des assistants IA les questions de vos acheteurs sur votre marché et vous envoyons le résultat par e-mail sous 2 jours ouvrés.\n\nSi ce n'est pas vous, ignorez ce message : sans confirmation, nous n'écrivons plus et supprimons l'adresse.\n\nExpéditeur : CitedBy, exploité par Resale IQ. Nous utilisons votre adresse uniquement pour cet audit et un message de suivi. Se désinscrire et supprimer l'adresse : {u}\n",
   ok_q="Adresse confirmée. Votre mini-audit est en file ; vous le recevrez par e-mail sous 2 jours ouvrés.", confirm_q="Confirmer cette adresse et lancer le mini-audit ?", confirm_btn="Confirmer",
   bad="Lien invalide ou expiré.", unsub_q="Supprimer cette adresse et annuler le mini-audit ?", unsub_btn="Supprimer", unsub_ok="Adresse supprimée."),
- "nl": dict(subj="Bevestig je e-mailadres voor je ChatGPT-miniaudit (CitedBy)",
-  body="Hallo,\n\nJe vroeg de CitedBy-miniaudit van {site} aan.\nOm dit adres te bevestigen, open je deze link (7 dagen geldig):\n{c}\n\nNa je bevestiging stellen we ChatGPT de vragen die jouw kopers in jouw markt stellen en mailen we je het resultaat binnen 2 werkdagen.\n\nWas jij dit niet? Negeer dan dit bericht: zonder bevestiging sturen we niets meer en wissen we het adres.\n\nAfzender: CitedBy, uitgebaat door Resale IQ. We gebruiken je adres alleen voor deze audit en één opvolgbericht. Uitschrijven en adres wissen: {u}\n",
+ "nl": dict(subj="Bevestig je e-mailadres voor je miniaudit van AI-assistenten (CitedBy)",
+  body="Hallo,\n\nJe vroeg de CitedBy-miniaudit van {site} aan.\nOm dit adres te bevestigen, open je deze link (7 dagen geldig):\n{c}\n\nNa je bevestiging stellen we AI-assistenten de vragen die jouw kopers in jouw markt stellen en mailen we je het resultaat binnen 2 werkdagen.\n\nWas jij dit niet? Negeer dan dit bericht: zonder bevestiging sturen we niets meer en wissen we het adres.\n\nAfzender: CitedBy, uitgebaat door Resale IQ. We gebruiken je adres alleen voor deze audit en één opvolgbericht. Uitschrijven en adres wissen: {u}\n",
   ok_q="Adres bevestigd. Je miniaudit staat in de wachtrij; je krijgt hem binnen 2 werkdagen per e-mail.", confirm_q="Dit adres bevestigen en de miniaudit starten?", confirm_btn="Bevestigen",
   bad="Ongeldige of verlopen link.", unsub_q="Dit adres wissen en de miniaudit annuleren?", unsub_btn="Wissen", unsub_ok="Adres gewist."),
 }
@@ -205,7 +205,7 @@ def handle_check(data, ip):
     if res.get("reachable"):
         count_event("check_complete", lang, ip)
     res["ok"] = True
-    res["snapshot"] = snapshot(country, lang, niche)
+    res["snapshot"] = None  # ChatGPT-app snapshots retired (RES-852)
     return 200, res
 
 
@@ -279,7 +279,19 @@ def page(msg, lang="en", form=None):
             f'<body><main class="doc"><p>{html.escape(msg)}</p>{form or ""}<p><a href="/">CitedBy</a></p></main>').encode()
 
 
-ROUTES = {"/": "index.html", "/check": "check.html", "/fr/check": "fr/check.html", "/nl/check": "nl/check.html",
+def engines_file():  # cron writes /data/engines.json (tools/engine_probe.py); the image carries a seed so a fresh container is not empty
+    f = os.environ.get("ENGINES_FILE") or os.path.join(DATA_DIR, "engines.json")
+    return f if os.path.isfile(f) else os.path.join(HERE, "data", "engines.json")
+
+
+HOME_ROUTES = {"/": "en", "/fr": "fr"}
+
+
+def render_home(lang):  # the assistant list is read on every request: a stale test date drops the engine from the page
+    return home.render(lang, home.live_engines(engines_file()), asset_ver("style.css"), asset_ver("check.css")).encode()
+
+
+ROUTES = {"/check": "check.html", "/fr/check": "fr/check.html", "/nl/check": "nl/check.html",
           "/legal": "legal.html", "/privacy": "privacy.html"}
 CSP = ("default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; script-src 'self'; connect-src 'self'; "
        "base-uri 'self'; form-action 'self' https://buy.stripe.com mailto:; frame-ancestors 'none'")
@@ -318,6 +330,8 @@ class H(BaseHTTPRequestHandler):
     def static(self, path):
         if path == "/data/":
             return self.out(301, b"", extra={"Location": "/data"})
+        if path in HOME_ROUTES:
+            return self.out(200, render_home(HOME_ROUTES[path]))
         rel = ROUTES.get(path) or path.lstrip("/")
         base = os.path.realpath(SITE_DIR)
         full = os.path.realpath(os.path.join(base, rel))
