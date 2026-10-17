@@ -4,12 +4,14 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import proxy
 
 SEEN = []
+SIG = []
 
 class Stub(BaseHTTPRequestHandler):
     def log_message(self, *a): pass
     def _do(self):
         n = int(self.headers.get("Content-Length") or 0)
         SEEN.append((self.command, self.path, self.headers.get("X-Forwarded-For"), self.headers.get("Cookie"), self.rfile.read(n)))
+        SIG.append(self.headers.get("Stripe-Signature"))
         if self.path.startswith("/health"):
             b = b'{"status":"ok","deploy":"abc1234","db":"ok","ok":true}'
         else:
@@ -37,7 +39,7 @@ class T(unittest.TestCase):
     def setUpClass(cls):
         cls.app = serve(Stub); cls.host = serve(H)
         cls.base = "http://127.0.0.1:%d" % cls.host.server_address[1]
-    def setUp(self): SEEN.clear(); proxy.UPSTREAM = "http://127.0.0.1:%d" % self.app.server_address[1]
+    def setUp(self): SEEN.clear(); SIG.clear(); proxy.UPSTREAM = "http://127.0.0.1:%d" % self.app.server_address[1]
     def get(self, path, **kw):
         try:
             r = urllib.request.urlopen(urllib.request.Request(self.base + path, **kw)); return r.status, r.read(), r.headers
@@ -48,9 +50,9 @@ class T(unittest.TestCase):
         self.assertEqual(self.get("/plans")[0], 404); self.assertEqual(SEEN, [])
 
     def test_allowlist_only(self):
-        for p in ("/instant", "/plans?billing=year", "/dashboard", "/account", "/recount/" + "a" * 24, "/api/snapshot/7", "/api/snapshot/" + "Hn-hGKmWgDksJUToqNLfgw"):
+        for p in ("/instant", "/fr/instant", "/nl/instant?domain=x.com", "/plans?billing=year", "/dashboard", "/account", "/recount/" + "a" * 24, "/api/snapshot/7", "/api/snapshot/" + "Hn-hGKmWgDksJUToqNLfgw", "/thanks", "/thanks?session_id=cs_live_a1", "/report/" + "a" * 24, "/start/" + "a" * 43):
             self.assertEqual(self.get(p)[1], b"app-page", p)
-        for p in ("/", "/fr", "/health-x", "/api/order", "/api/stripe/webhook", "/report/" + "a" * 24, "/api/snapshot/short", "/api/snapshot/" + "a" * 65, "/api/snapshot/abc/def", "/plansx", "/instantx", "/../plans"):
+        for p in ("/", "/fr", "/health-x", "/api/order", "/api/stripe/webhook", "/thanksx", "/report/short", "/report/" + "a" * 65, "/start/short", "/start/" + "a" * 65, "/api/fixpack/intake", "/api/snapshot/short", "/api/snapshot/" + "a" * 65, "/api/snapshot/abc/def", "/plansx", "/instantx", "/../plans", "/de/instant", "/fr/plans", "/fr/instantx", "/fr/dashboard"):
             self.assertEqual(self.get(p)[0], 404, p)
 
     def test_forwards_one_client_ip_and_cookie_not_spoofed_xff(self):
@@ -72,6 +74,16 @@ class T(unittest.TestCase):
         op = urllib.request.build_opener(NoRedir)
         with self.assertRaises(urllib.error.HTTPError) as c: op.open(self.base + "/login/" + "x" * 24)
         self.assertEqual(c.exception.code, 302); self.assertEqual(c.exception.headers["Location"], "/dashboard")
+
+    def test_stripe_webhook_forwards_raw_body_and_signature(self):
+        raw = b'{"id":"evt_1",  "type":"checkout.session.completed"}'
+        req = urllib.request.Request(self.base + "/api/stripe/webhook", raw, {"Content-Type": "application/json", "Stripe-Signature": "t=1,v1=ab"})
+        self.assertEqual(urllib.request.urlopen(req).read(), b"app-page"); self.assertEqual(SEEN[0][4], raw)
+        self.assertEqual(SEEN[0][1], "/api/stripe/webhook"); self.assertEqual(SIG[-1], "t=1,v1=ab")
+
+    def test_fixpack_intake_post_is_forwarded(self):
+        req = urllib.request.Request(self.base + "/api/fixpack/intake", b'{"token":"t"}', {"Content-Type": "application/json"})
+        self.assertEqual(urllib.request.urlopen(req).read(), b"app-page"); self.assertEqual(SEEN[0][1], "/api/fixpack/intake")
 
     def test_upstream_down_is_502_not_a_crash(self):
         proxy.UPSTREAM = "http://127.0.0.1:1"
