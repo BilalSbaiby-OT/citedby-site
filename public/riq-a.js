@@ -19,7 +19,7 @@
       $screen_width: screen.width, $screen_height: screen.height, $viewport_width: innerWidth, $viewport_height: innerHeight,
       $timezone: (Intl.DateTimeFormat().resolvedOptions() || {}).timeZone, $language: navigator.language, site: site
     };
-    ["utm_source", "utm_medium", "utm_campaign", "ref"].forEach(function (k) { if (q.get(k)) p[k] = String(q.get(k)).slice(0, 80); });
+    ["utm_source", "utm_medium", "utm_campaign", "utm_content", "ref"].forEach(function (k) { if (q.get(k)) p[k] = String(q.get(k)).slice(0, 80); });
     if (document.referrer) { try { var r = new URL(document.referrer); p.$referrer = r.origin + r.pathname; p.$referring_domain = r.host; } catch (e) {} }
     return p;
   }
@@ -39,6 +39,11 @@
   function route() { if (location.pathname !== last) { last = location.pathname; send("$pageview"); } }
   ["pushState", "replaceState"].forEach(function (m) { var o = history[m]; history[m] = function () { var r = o.apply(this, arguments); route(); return r; }; });
   addEventListener("popstate", route);
+  // primary calls to action: mark the button with data-cta="primary" (optional data-cta-id="hero"); one delegated listener, no query text or link targets sent
+  document.addEventListener("click", function (e) {
+    var el = e.target && e.target.closest && e.target.closest("[data-cta]");
+    if (el) send("cta_click", { cta: el.getAttribute("data-cta"), cta_id: el.getAttribute("data-cta-id") || undefined });
+  }, true);
   // payment links and Stripe buy buttons: the click is the checkout start
   document.addEventListener("click", function (e) {
     var a = e.target && e.target.closest && e.target.closest("a[href]");
