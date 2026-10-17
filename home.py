@@ -58,8 +58,8 @@ T = {
   lede="We ask AI assistants the questions your buyers ask, in their language, and count who gets named. Then we fix what keeps your shop out of the answers and count again 30 days later.",
   engines="Assistants we measured on {date}: {names}. Each one through an API, with web search on.",
   engines_none="We are connecting assistants. Write to us before you buy.",
-  go="Check my shop, free", sample_link="Read a sample mini-audit",
-  micro="The check takes about 10 seconds and needs no email. Want the 16-answer mini-audit? Leave your email after the check; it arrives within 2 working days.",
+  go="Check my shop, free", go_scan="Scan my shop on nine assistants, free", go_quick="Or the 10-second crawler check", sample_link="Read a sample mini-audit",
+  micro="The scan takes about a minute and needs no account. You see every answer that came back.",
   s_bar="A Belgian coffee roaster's online shop", s_big="Named in {n} of {a} answers. Linked in {l}.",
   s_sub="{assistant} answered {q} buyer questions in French, each asked twice. The roaster was named once and its website was never linked.",
   s_h="Who the assistant names instead of you", s_q="A buyer asks (in French)", s_n="Named instead", s_t="This shop",
@@ -123,8 +123,8 @@ T = {
   lede="Nous posons aux assistants IA les questions de vos acheteurs, dans leur langue, et nous comptons qui est cité. Puis nous corrigeons ce qui vous écarte des réponses et nous recomptons 30 jours plus tard.",
   engines="Assistants mesurés le {date} : {names}. Chacun par une API, recherche web activée.",
   engines_none="Nous connectons des assistants. Écrivez-nous avant d'acheter.",
-  go="Tester ma boutique, gratuitement", sample_link="Lire un exemple de mini-audit",
-  micro="Le test prend environ 10 secondes, sans e-mail. Vous voulez le mini-audit de 16 réponses ? Laissez votre e-mail après le test ; il arrive sous 2 jours ouvrés.",
+  go="Tester ma boutique, gratuitement", go_scan="Scanner ma boutique sur neuf assistants, gratuit", go_quick="Ou le test express de 10 secondes", sample_link="Lire un exemple de mini-audit",
+  micro="Le scan prend environ une minute, sans compte. Vous voyez chaque réponse reçue. La page du scan est en anglais pour l'instant ; vous y choisissez le français.",
   s_bar="La boutique en ligne d'un torréfacteur belge", s_big="Cité dans {n} réponse sur {a}. Lien vers son site dans {l}.",
   s_sub="{assistant} a répondu à {q} questions d'acheteurs en français, chacune posée deux fois. Le torréfacteur a été cité une fois et son site n'a jamais été lié.",
   s_h="Qui l'assistant cite à votre place", s_q="Un acheteur demande (en français)", s_n="Cités à sa place", s_t="Cette boutique",
@@ -250,7 +250,7 @@ def render(lang, engines, css_ver="", check_css_ver=""):
 <h1>{E(t["h1"])}</h1>
 <p class="lede">{E(t["lede"])}</p>
 <p class="engines" id="engines">{eline}</p>
-<div class="actions"><a class="btn p" href="{chk}">{E(t["go"])}</a><a class="link" href="#sample">{E(t["sample_link"])}</a></div>
+<div class="actions"><a class="btn p" href="/instant">{E(t["go_scan"])}</a><a class="btn g" href="{chk}">{E(t["go_quick"])}</a><a class="link" href="#sample">{E(t["sample_link"])}</a></div>
 <p class="note" style="margin:var(--s3) 0 0">{E(t["micro"])}</p>
 </div>
 {card}
@@ -296,7 +296,7 @@ def render(lang, engines, css_ver="", check_css_ver=""):
 <section id="behind" class="sec"><div class="col"><h2>{E(t["behind_h"])}</h2>
 <p>{E(t["behind"])} <a href="/legal">{E(t["legal"])}</a>.</p></div></section>
 
-<section class="sec cta"><div class="col"><h2>{E(t["cta_h"])}</h2><p class="lede">{E(t["cta"])}</p><div class="actions"><a class="btn p" href="{chk}">{E(t["go"])}</a></div></div></section>
+<section class="sec cta"><div class="col"><h2>{E(t["cta_h"])}</h2><p class="lede">{E(t["cta"])}</p><div class="actions"><a class="btn p" href="/instant">{E(t["go_scan"])}</a></div></div></section>
 </main>
 
 <footer><span>© 2026 CitedBy. hello@citedby.eu</span><span>{foot}</span></footer>
