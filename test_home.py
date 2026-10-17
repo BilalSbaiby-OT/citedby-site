@@ -57,13 +57,13 @@ class T(unittest.TestCase):
     def test_empty_renders_fallback_and_no_buy_button(self):
         h = home.render("en", [])
         self.assertIn("We are connecting assistants", h)
-        self.assertNotIn("buy.stripe.com/8x2dR17ri7C06p44cX0oM08", h)
+        self.assertNotIn("buy.stripe.com/3cI8wHgJK4q9atr9Y98N200", h)
         self.assertNotIn('"price": "390"', h)
         self.assertIn('href="/check"', h)
 
     def test_prices_and_guarantees(self):
         h = home.render("en", live("Claude"))
-        for s in ("€390", "€149", "buy.stripe.com/8x2dR17ri7C06p44cX0oM08", "Late changes, full refund.", "No rise at day 30"):
+        for s in ("€390", "€149", "buy.stripe.com/3cI8wHgJK4q9atr9Y98N200", "Late changes, full refund.", "No rise at day 30"):
             self.assertIn(s, h)
         f = home.render("fr", live("Claude"))
         for s in ("390 €", "149 €"):
