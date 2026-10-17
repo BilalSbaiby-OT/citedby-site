@@ -34,6 +34,9 @@
     col.appendChild(ul);
     snapshot(res.snapshot, col);
     mailBox(res, col);
+    var sc = el("div", "snap"); sc.appendChild(el("h2", null, T.scan_h)); sc.appendChild(el("p", null, T.scan_p));
+    var q = "domain=" + encodeURIComponent($("f-url").value.trim()) + "&country=" + encodeURIComponent($("f-country").value) + "&lang=" + encodeURIComponent($("f-lang").value) + ($("f-niche").value === "other" ? "" : "&category=" + encodeURIComponent($("f-niche").value));
+    var sa = el("a", "btn p", T.scan_go); sa.href = "/instant?" + q; sc.appendChild(sa); col.appendChild(sc);
     var fx = el("div", "fixbox"); fx.appendChild(el("h2", null, T.fix_h)); fx.appendChild(el("p", null, T.fix_p));
     var a = el("a", "btn g", T.fix_go); a.href = D.price_url; a.rel = "noopener";
     a.addEventListener("click", function () { try { navigator.sendBeacon("/api/event", new Blob([JSON.stringify({ type: "fixpack_click", lang: D.lang })], { type: "application/json" })); } catch (e) {} });
