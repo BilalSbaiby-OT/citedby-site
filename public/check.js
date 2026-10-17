@@ -1,5 +1,5 @@
 (function () {
-  var INSTANT = { fr: "/fr/instant" }, /* add nl when /nl/instant opens (RES-1130) */ D = JSON.parse(document.getElementById("i18n").textContent), T = D.js, $ = function (id) { return document.getElementById(id); };
+  var DATA = {"FR|coffee": [["fr", "/data/cafe-france"]], "BE|coffee": [["fr", "/data/cafe-belgique"], ["nl", "/data/koffie-belgie"]], "IE|coffee": [["en", "/data/coffee-ireland"]], "FR|tea": [["fr", "/data/the-france"]], "FR|beauty": [["fr", "/data/complements-beaute-france"]], "FR|mattress": [["fr", "/data/matelas-france"]], "FR|supplements": [["fr", "/data/complements-alimentaires-france"]]}, INSTANT = { fr: "/fr/instant" }, /* add nl when /nl/instant opens (RES-1130) */ D = JSON.parse(document.getElementById("i18n").textContent), T = D.js, $ = function (id) { return document.getElementById(id); };
   var form = $("cf"), statusEl = $("status"), resEl = $("result"), busy = false;
   function fmt(s, v) { return s.replace(/\{(\w+)\}/g, function (_, k) { return v && v[k] != null ? v[k] : ""; }); }
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
@@ -45,7 +45,15 @@
   }
   function snapshot(s, col) {
     var box = el("div", "snap"), country = D.countries[$("f-country").value], niche = D.niches[$("f-niche").value];
-    if (!s) { box.appendChild(el("p", "note", T.snap_none)); col.appendChild(box); return; }
+    if (!s) {
+      var pages = DATA[$("f-country").value + "|" + $("f-niche").value];
+      box.appendChild(el("p", "note", T.snap_none));
+      if (pages) {
+        var pg = pages.filter(function (p) { return p[0] === D.lang; })[0] || pages[0], dl = el("a", "btn g", fmt(T.data_go, { niche: niche, country: country, lang: D.langs[pg[0]] }));
+        dl.href = pg[1]; box.appendChild(dl);
+      }
+      col.appendChild(box); return;
+    }
     box.appendChild(el("h2", null, fmt(T.snap_h, { niche: niche, country: country })));
     var tr = el("div", "tally");
     s.top.forEach(function (x) { var p = el("p", "rk"); p.appendChild(el("span", "named", x.name)); p.appendChild(el("span", "n", fmt(T.snap_count, { n: x.named, runs: s.runs }))); tr.appendChild(p); });
