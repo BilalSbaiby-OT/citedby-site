@@ -5,6 +5,7 @@
 ## Pages
 - [Home, prices and guarantees](https://citedby.eu/): what we do, prices, FAQ
 - [Free check](https://citedby.eu/check): paste a shop URL and see in about 10 seconds which AI crawlers the site lets in and what a plain page fetch finds, with a fix for each problem; no email needed. From there you can ask for the free 16-answer mini-audit by email (also /fr/check, /nl/check)
+- [AI visibility audit guide](https://citedby.eu/ai-visibility-audit): what a GEO/AEO audit checks for an online shop and how to run a basic one yourself
 - [Sample audit](https://citedby.eu/sample-audit): an anonymised mini-audit of a Belgian coffee roaster, run 15 Oct 2026 through the Claude API with web search: the sites linked in each of 16 answers, whether the shop is named, and the fixes
 - [Data by niche](https://citedby.eu/data): who ChatGPT linked, question by question, with method and CSV
 
