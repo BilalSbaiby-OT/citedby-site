@@ -51,8 +51,13 @@ class T(unittest.TestCase):
             raw = json.load(open(probe))
             raw["engines"] = [dict(r, tested=t) for r in raw["engines"]]
             f = tempfile.NamedTemporaryFile("w", suffix=".json", delete=False); json.dump(raw, f); f.close()
-            h = home.render("en", home.live_engines(f.name, NOW))
-            self.assertNotIn("Gemini", h)
+            shown = home.live_engines(f.name, NOW)
+            h = home.render("en", shown)
+            web = {r["name"] for r in raw["engines"] if r.get("group", "web") == "web"}
+            knowledge = {r["name"] for r in raw["engines"] if r.get("group", "web") != "web"}
+            self.assertEqual({e["name"] for e in shown}, web)
+            for n in knowledge:
+                self.assertNotIn(n, h)
 
     def test_empty_renders_fallback_and_no_buy_button(self):
         h = home.render("en", [])
