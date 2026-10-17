@@ -108,12 +108,13 @@ def run(raw_url, lang="en", timeout=18):
     rp.parse(robots["body"].splitlines() if robots["status"] == 200 else [])
     blocked = [b for b in BOTS if robots["status"] == 200 and not rp.can_fetch(b, root + "/")]
     add("crawlers", "fail" if blocked else "pass", blocked=blocked, checked=BOTS, robots_found=robots["status"] == 200)
-    # 2. text in the raw HTML
+    # 2. text in the raw HTML. A 200 with no readable text is a fetch we cannot judge (server answered us an empty body), never a verdict on the shop.
     words = len(visible_text(home["body"]).split())
-    add("raw_text", "pass" if words >= 200 else "warn" if words >= 50 else "fail", words=words)
+    unreadable = words == 0
+    add("raw_text", "unknown" if unreadable else "pass" if words >= 200 else "warn" if words >= 50 else "fail", words=words)
     # 3. Organization / Product JSON-LD on the homepage
     types = set().union(*[types_of(n) for n in jsonld_nodes(home["body"])]) if jsonld_nodes(home["body"]) else set()
-    add("org_schema", "pass" if types & ORG_TYPES else "fail", found=sorted(types)[:8])
+    add("org_schema", "unknown" if unreadable else "pass" if types & ORG_TYPES else "fail", found=sorted(types)[:8])
     # 4. product page: Product JSON-LD, price, availability, GTIN
     purl = find_product_url(root, home["body"], f)
     if purl and time.monotonic() < deadline:

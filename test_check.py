@@ -334,6 +334,19 @@ class Parsing(unittest.TestCase):
         self.assertRaises(safefetch.Blocked, doorcheck.normalize, "ftp://x.com")
         self.assertEqual(doorcheck.normalize("Shop.Example.com/path?x=1"), "https://Shop.Example.com")
 
+    def test_empty_200_is_unknown_not_fail(self):  # RES-1182: terresdecafe.com sent an empty 200 to our old Accept header
+        def fake(url, **kw):
+            body = "    \r\n" if url.endswith("/") and "robots" not in url and "llms" not in url else ""
+            return {"status": 200 if body else 404, "url": url, "body": body, "error": ""}
+        orig = safefetch.fetch; safefetch.fetch = fake
+        try: out = doorcheck.run("https://www.terresdecafe.com")
+        finally: safefetch.fetch = orig
+        st = {c["id"]: c["status"] for c in out["checks"]}
+        self.assertEqual((st["raw_text"], st["org_schema"]), ("unknown", "unknown"))
+    def test_accept_header_has_no_json(self):  # RES-1182
+        import inspect; src = inspect.getsource(safefetch.fetch)
+        self.assertNotIn("application/json", src)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
