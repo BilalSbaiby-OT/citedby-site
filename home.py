@@ -86,7 +86,7 @@ T = {
   mo_h="After your first 30 days: CitedBy Monthly", mo_price="€149", mo_small="/month",
   mo=["Your buyer questions re-run every month on every assistant we measure", "Who gained and who lost, competitor by competitor", "Alerts when an assistant gets a fact about you wrong",
       "2 changes made for you every month, plus 1 listing request", "A one-page report in your language"],
-  mo_note="Month 1 is included in your Fix Pack. We send the link with your day-30 recount. Cancel anytime by replying to any report.",
+  mo_note="Month 1 is included in your Fix Pack and nothing renews by itself. With your day-30 recount we send a link if you want to continue. Cancel any time online.", mo_cancel=("/cancel", "Cancel or withdraw"),
   faq_h="FAQ",
   faq=[("Which assistants do you check?", "The ones we can ask through an API with web search switched on, on the day you order. The line at the top of this page is that list, with its date. We do not script the chat apps themselves: their consumer terms forbid automated extraction, and we will not build your results on an account that can be banned. When we add an assistant, it joins your recount at no charge."),
        ("Is an API answer what my buyer sees in the app?", "Not always. An API call has no chat history and no personal profile, and the app can answer differently. That is why we ask every question twice, show you each answer and count the same way before and after. The count shows change. It does not forecast your traffic."),
@@ -97,12 +97,12 @@ T = {
        ("How fast?", "The mini-audit arrives within 2 working days. Fix Pack changes go live within 7 days of access, or the files reach you within 7 days, and the recount is at day 30."),
        ("What exactly do you guarantee?", 'Late changes, full refund. If you give us access (a Shopify collaborator request or a CMS login), the changes are live within 7 days. If you choose ready-to-paste files, you get them within 7 days. If we miss either date, we refund the €390. You do not have to ask. No rise at day 30, 30 more days free. We ask the same questions again, each twice, and count the same way as in your first audit. If your shop is named in no more answers than before, we keep working another 30 days at no charge. We do not promise rankings, traffic or sales. Nobody controls what an assistant answers.'),
        ("What happens after I pay?", 'Stripe emails your receipt. We email you for access, or for your choice of ready-to-paste files. The 7 days start the day you give us access, or the day you tell us you want the files. If we miss the date, the refund is automatic. At day 30 you get the recount, before and after for each assistant, with the raw answers. Nothing renews. After the recount you can keep going with CitedBy Monthly (€149 a month, cancel by replying to any report). If you do nothing, you are not charged again.'),
-       ("Is Monthly a contract?", "No. You choose it after your day-30 recount, it is billed monthly, and you cancel by replying to any report. Your Fix Pack never turns into Monthly by itself.")],
+       ("Is Monthly a contract?", "No. You choose it after your day-30 recount, it is billed monthly, and you cancel online on the cancel page or by replying to any report. Your Fix Pack never turns into Monthly by itself.")],
   faq_multi=("Why several assistants?", "A shop can be named by one assistant and missed by another, so each gets its own count. Your day-30 recount shows which one you moved on."),
   behind_h="Who is behind this",
   behind="CitedBy is a small independent service run from Spain. We sell the fixes, which is why every audit lists the sites each assistant linked in each try: you can check our count yourself.",
   legal="Legal notice", cta_h="See where you stand, free", cta="Send your shop address and get 16 answers about your category, who is named instead of you, and 2 to 3 fixes.",
-  foot=(("/data", "Data"), ("/terms", "Terms"), ("/refund", "Refunds"), ("/contact", "Contact"), ("/legal", "Legal notice"), ("/privacy", "Privacy")),
+  foot=(("/data", "Data"), ("/terms", "Terms"), ("/refund", "Refunds"), ("/cancel", "Cancel or withdraw"), ("/contact", "Contact"), ("/legal", "Legal notice"), ("/privacy", "Privacy")),
   svc="CitedBy: AI assistant visibility audit and fixes", svc_type="AI search visibility for online shops", free_offer="Free check", fp_offer="Fix Pack (paid once)", locale="en",
  ),
  "fr": dict(
@@ -143,7 +143,7 @@ T = {
   mo_h="Après vos 30 premiers jours : CitedBy Monthly", mo_price="149 €", mo_small="/mois",
   mo=["Les questions de vos acheteurs relancées chaque mois sur chaque assistant que nous mesurons", "Qui gagne et qui perd, concurrent par concurrent", "Des alertes quand un assistant se trompe sur un fait vous concernant",
       "2 changements faits pour vous chaque mois, plus 1 demande de référencement", "Un rapport d'une page dans votre langue"],
-  mo_note="Le mois 1 est inclus dans votre Fix Pack. Nous envoyons le lien avec votre recomptage à 30 jours. Résiliation à tout moment en répondant à un rapport.",
+  mo_note="Le mois 1 est inclus dans votre Fix Pack et rien ne se renouvelle tout seul. Avec votre recomptage à 30 jours, nous envoyons un lien si vous voulez continuer. Résiliation à tout moment en ligne.", mo_cancel=("/fr/resilier", "Résilier ou se rétracter"),
   faq_h="FAQ",
   faq=[("Quels assistants vérifiez-vous ?", "Ceux que nous pouvons interroger par une API, recherche web activée, le jour de votre commande. La ligne en haut de cette page est cette liste, avec sa date. Nous ne pilotons pas les applications de chat elles-mêmes : leurs conditions grand public interdisent l'extraction automatisée, et nous ne bâtirons pas vos résultats sur un compte qui peut être banni. Quand nous ajoutons un assistant, il rejoint votre recomptage sans frais."),
        ("Une réponse d'API est-elle ce que voit mon acheteur dans l'application ?", "Pas toujours. Un appel d'API n'a ni historique de conversation ni profil personnel, et l'application peut répondre autrement. C'est pourquoi nous posons chaque question deux fois, vous montrons chaque réponse et comptons de la même façon avant et après. Le compte montre un changement. Il ne prévoit pas votre trafic."),
@@ -154,12 +154,12 @@ T = {
        ("En combien de temps ?", "Le mini-audit arrive sous 2 jours ouvrés. Les changements du Fix Pack sont en ligne sous 7 jours après l'accès, ou les fichiers vous parviennent sous 7 jours, et le recomptage a lieu à 30 jours."),
        ("Que garantissez-vous exactement ?", "Changements en retard, remboursement total. Si vous nous donnez l'accès (une demande de collaborateur Shopify ou un accès CMS), les changements sont en ligne sous 7 jours. Si vous choisissez les fichiers prêts à coller, vous les recevez sous 7 jours. Si nous manquons l'une des deux dates, nous vous remboursons les 390 €. Vous n'avez rien à demander. Pas de hausse à 30 jours, 30 jours de plus offerts. Nous reposons les mêmes questions, deux fois chacune, et comptons comme dans votre premier audit. Si votre boutique n'est pas citée dans plus de réponses qu'avant, nous continuons à travailler 30 jours de plus sans frais. Nous ne promettons ni classement, ni trafic, ni ventes. Personne ne contrôle ce qu'un assistant répond."),
        ("Que se passe-t-il après le paiement ?", "Stripe vous envoie le reçu. Nous vous écrivons pour obtenir l'accès, ou pour que vous choisissiez les fichiers prêts à coller. Les 7 jours commencent le jour où vous donnez l'accès, ou le jour où vous nous dites que vous voulez les fichiers. Si nous manquons la date, le remboursement est automatique. À 30 jours, vous recevez le recomptage, avant et après pour chaque assistant, avec les réponses brutes. Rien ne se renouvelle. Après le recomptage, vous pouvez continuer avec CitedBy Monthly (149 € par mois, résiliation par simple réponse à un rapport). Si vous ne faites rien, vous n'êtes plus débité."),
-       ("Monthly est-il un engagement ?", "Non. Vous le choisissez après votre recomptage à 30 jours, il est facturé au mois et vous résiliez en répondant à un rapport. Votre Fix Pack ne devient jamais Monthly tout seul.")],
+       ("Monthly est-il un engagement ?", "Non. Vous le choisissez après votre recomptage à 30 jours, il est facturé au mois et vous résiliez en ligne sur la page de résiliation ou en répondant à un rapport. Votre Fix Pack ne devient jamais Monthly tout seul.")],
   faq_multi=("Pourquoi plusieurs assistants ?", "Une boutique peut être citée par un assistant et absente d'un autre : chacun a donc son compte. Votre recomptage à 30 jours montre sur lequel vous avez progressé."),
   behind_h="Qui est derrière CitedBy",
   behind="CitedBy est un petit service indépendant exploité depuis l'Espagne. Nous vendons les corrections, c'est pourquoi chaque audit liste les sites que chaque assistant a liés à chaque essai : vous pouvez vérifier notre compte vous-même.",
   legal="Mentions légales", cta_h="Voyez où vous en êtes, gratuitement", cta="Envoyez l'adresse de votre boutique et recevez 16 réponses sur votre catégorie, qui est cité à votre place, et 2 à 3 corrections.",
-  foot=(("/data", "Données"), ("/fr/terms", "Conditions"), ("/fr/refund", "Remboursements"), ("/fr/contact", "Contact"), ("/fr/legal", "Mentions légales"), ("/fr/privacy", "Confidentialité")),
+  foot=(("/data", "Données"), ("/fr/terms", "Conditions"), ("/fr/refund", "Remboursements"), ("/fr/resilier", "Résilier ou se rétracter"), ("/fr/contact", "Contact"), ("/fr/legal", "Mentions légales"), ("/fr/privacy", "Confidentialité")),
   svc="CitedBy : audit et corrections de visibilité dans les assistants IA", svc_type="Visibilité IA pour boutiques en ligne", free_offer="Test gratuit", fp_offer="Fix Pack (payé une fois)", locale="fr",
  ),
 }
@@ -266,7 +266,7 @@ def render(lang, engines, css_ver="", check_css_ver=""):
 
 <div class="row"><div><h3>{E(t["mo_h"])}</h3>
 <ul>{li(t["mo"])}</ul></div>
-<div class="buy"><div class="price">{E(t["mo_price"])}<small>{E(t["mo_small"])}</small></div><p class="note" style="margin:var(--s3) 0 0">{E(t["mo_note"])}</p></div></div>
+<div class="buy"><div class="price">{E(t["mo_price"])}<small>{E(t["mo_small"])}</small></div><p class="note" style="margin:var(--s3) 0 0">{E(t["mo_note"])} <a href="{t["mo_cancel"][0]}">{E(t["mo_cancel"][1])}</a></p></div></div>
 </div>
 </div></section>
 

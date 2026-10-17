@@ -1,5 +1,5 @@
 """Tests for the CitedBy check. Run: OPTIN_SECRET=$(python3 -c 'print("x"*40)') BASE_URL=http://t DATA_DIR=/tmp/cbt python3 test_check.py"""
-import json, os, threading, unittest, urllib.request, urllib.error, socket
+import urllib.parse, json, os, threading, unittest, urllib.request, urllib.error, socket
 from http.server import BaseHTTPRequestHandler, HTTPServer
 os.environ.setdefault("OPTIN_SECRET", "x" * 40); os.environ.setdefault("BASE_URL", "http://t"); import tempfile; os.environ["DATA_DIR"] = tempfile.mkdtemp()
 os.environ["MAIL_OUTBOX"] = "/tmp/cbt-outbox.jsonl"; os.environ["CHECK_PER_IP_HOUR"] = "1000"; os.environ["CHECK_PER_HOST_HOUR"] = "1000"; os.environ["REQ_PER_IP_HOUR"] = "1000"
@@ -229,6 +229,34 @@ class Api(unittest.TestCase):
         self.assertIsNotNone(server._db.execute("SELECT 1 FROM request WHERE email='a@example.com'").fetchone())
         self.assertEqual(urllib.request.urlopen(urllib.request.Request(unsub, b"", method="POST")).status, 200)
         self.assertIsNone(server._db.execute("SELECT 1 FROM request WHERE email='a@example.com'").fetchone())
+
+    def form_post(self, path, fields):
+        req = urllib.request.Request(self.base + path, urllib.parse.urlencode(fields).encode(), method="POST")
+        try:
+            r = urllib.request.urlopen(req); return r.status, r.read().decode()
+        except urllib.error.HTTPError as e:
+            return e.code, e.read().decode()
+
+    def test_cancel_form(self):                                                              # RES-1174: online withdrawal/cancel, recorded at once, acknowledged by mail
+        for p in ("/cancel", "/fr/resilier"):
+            self.assertEqual(self.get_status(self.base + p), 200)
+        d = {"email": "Buyer@Example.com", "what": "monthly", "kind": "cancel", "ref": "shop.example\nX: y", "lang": "fr"}
+        code, body = self.form_post("/api/cancel", d)
+        self.assertEqual(code, 200); self.assertIn("résiliation", body); self.assertIn("buyer@example.com", body)
+        row = server._db.execute("SELECT email,what,kind,ref,ack_sent FROM cancel_request WHERE email='buyer@example.com'").fetchone()
+        self.assertEqual(row, ("buyer@example.com", "monthly", "cancel", "shop.example X: y", 1))
+        mails = [json.loads(l) for l in open("/tmp/cbt-outbox.jsonl") if "buyer@example.com" in l]
+        self.assertEqual({m["to"][0] for m in mails}, {server.CANCEL_TO, "buyer@example.com"})
+        self.assertIn("Reply-To", [m for m in mails if m["to"][0] == server.CANCEL_TO][0]["headers"])
+        self.assertIn("résiliation", [m for m in mails if m["to"][0] == "buyer@example.com"][0]["subject"])
+        self.assertEqual(self.form_post("/api/cancel", {**d, "email": "nope"})[0], 400)
+        self.assertEqual(self.form_post("/api/cancel", {**d, "kind": "cancel", "what": "fixpack"})[0], 400)   # Fix Pack never renews: withdraw only
+        self.assertEqual(self.form_post("/api/cancel", {**d, "what": "x"})[0], 400)
+        n = server._db.execute("SELECT count(*) FROM cancel_request").fetchone()[0]
+        self.assertEqual(self.form_post("/api/cancel", {**d, "website": "spam"})[0], 200)       # honeypot: nothing stored
+        self.assertEqual(server._db.execute("SELECT count(*) FROM cancel_request").fetchone()[0], n)
+        code, body = self.form_post("/api/cancel", {"email": "w@example.com", "what": "fixpack", "kind": "withdraw", "lang": "en"})
+        self.assertEqual(code, 200); self.assertIn("withdrawal", body)
 
     def test_mail_cap_per_address(self):                                                     # H4: 2 mails per address per 24 h across URLs
         for host in ("example.com", "example.org", "example.net", "iana.org"):
