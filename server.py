@@ -288,7 +288,7 @@ HOME_ROUTES = {"/": "en", "/fr": "fr"}
 
 
 def render_home(lang):  # the assistant list is read on every request: a stale test date drops the engine from the page
-    return home.render(lang, home.live_engines(engines_file()), asset_ver("style.css"), asset_ver("check.css")).encode()
+    return home.render(lang, home.live_engines(engines_file()), asset_ver("style.css"), asset_ver("check.css"), home.live_engines(engines_file(), group="knowledge")).encode()
 
 
 ROUTES = {"/check": "check.html", "/fr/check": "fr/check.html", "/nl/check": "nl/check.html",
