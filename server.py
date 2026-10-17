@@ -7,7 +7,7 @@ import base64, hashlib, hmac, html, json, mimetypes, os, re, sqlite3, threading,
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 
-import doorcheck, home, proxy, safefetch
+import analytics, doorcheck, home, proxy, safefetch
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 CONSENT_VERSION = "2026-10-15.v1"
@@ -293,7 +293,7 @@ def render_home(lang):  # the assistant list is read on every request: a stale t
 
 ROUTES = {"/check": "check.html", "/fr/check": "fr/check.html", "/nl/check": "nl/check.html",
           "/legal": "legal.html", "/privacy": "privacy.html"}
-CSP = ("default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; script-src 'self'; connect-src 'self'; "
+CSP = ("default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; script-src 'self'; connect-src 'self' https://eu.i.posthog.com; "
        "base-uri 'self'; form-action 'self' https://buy.stripe.com mailto:; frame-ancestors 'none'")
 
 
@@ -310,6 +310,8 @@ class H(BaseHTTPRequestHandler):
         return xf.split(",")[-1].strip() if xf else self.client_address[0]
 
     def out(self, code, body, ctype="text/html; charset=utf-8", extra=None):
+        if code == 200 and ctype.startswith("text/html"):
+            body = analytics.inject(body)
         self.send_response(code)
         self.send_header("Content-Type", ctype)
         self.send_header("Content-Length", str(len(body)))
