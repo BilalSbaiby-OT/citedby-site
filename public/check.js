@@ -1,5 +1,5 @@
 (function () {
-  var INSTANT = { fr: "/fr/instant" }, /* add nl when /nl/instant opens (RES-1130) */ D = JSON.parse(document.getElementById("i18n").textContent), T = D.js, $ = function (id) { return document.getElementById(id); };
+  var INSTANT = { fr: "/fr/instant", nl: "/nl/instant" }, D = JSON.parse(document.getElementById("i18n").textContent), T = D.js, $ = function (id) { return document.getElementById(id); };
   var form = $("cf"), statusEl = $("status"), resEl = $("result"), busy = false;
   function fmt(s, v) { return s.replace(/\{(\w+)\}/g, function (_, k) { return v && v[k] != null ? v[k] : ""; }); }
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
