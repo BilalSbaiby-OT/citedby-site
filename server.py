@@ -1,7 +1,7 @@
 """CitedBy: static site plus the free check. Standard library only.
 
 Routes: GET static pages (clean URLs), POST /api/check, POST /api/request, GET|POST /api/confirm, GET|POST /api/unsubscribe,
-POST /api/event, GET /healthz, GET /health (status + db read, 503 on failure), GET /deploy-id (commit from the build). Data: one SQLite file under DATA_DIR. No cookies. Events are anonymous counters.
+POST /api/cancel (online withdrawal and cancel form, RES-1174), POST /api/event, GET /healthz, GET /health (status + db read, 503 on failure), GET /deploy-id (commit from the build). Data: one SQLite file under DATA_DIR. No cookies. Events are anonymous counters.
 """
 import base64, hashlib, hmac, html, json, mimetypes, os, re, sqlite3, threading, time, urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -48,6 +48,8 @@ _db.execute("""CREATE TABLE IF NOT EXISTS request(
   id INTEGER PRIMARY KEY, email TEXT NOT NULL, url TEXT NOT NULL, country TEXT, lang TEXT, niche TEXT, summary TEXT,
   ts INTEGER, consent_text_version TEXT, last_mail_ts INTEGER DEFAULT 0, confirmed_ts INTEGER, confirmed_day TEXT, released_day TEXT)""")
 _db.execute("CREATE TABLE IF NOT EXISTS mail_log(email TEXT NOT NULL, ts INTEGER NOT NULL)")
+_db.execute("""CREATE TABLE IF NOT EXISTS cancel_request(
+  id INTEGER PRIMARY KEY, email TEXT NOT NULL, what TEXT, kind TEXT, ref TEXT, lang TEXT, ts INTEGER NOT NULL, ack_sent INTEGER DEFAULT 0)""")
 _db.execute("""CREATE TABLE IF NOT EXISTS event_count(
   day TEXT NOT NULL, lang TEXT NOT NULL, type TEXT NOT NULL, n INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(day,lang,type))""")
 _db.commit()
@@ -254,6 +256,51 @@ def handle_request(data, ip):
     return True
 
 
+CANCEL_WHAT = ("fixpack", "monthly")
+CANCEL_TO = os.environ.get("CANCEL_NOTICE_TO", "hello@citedby.eu")
+CANCEL_TXT = {
+ "en": dict(subj="We received your {kind} (CitedBy)", kind={"withdraw": "withdrawal", "cancel": "cancellation"}, what={"fixpack": "Fix Pack", "monthly": "CitedBy Monthly"},
+  body="Hello,\n\nWe received your {kind} on {when} (UTC).\nProduct: {what}\nOrder or shop: {ref}\n\nWhat happens next: we match this address to your payment and reply within 2 working days. A withdrawal inside 14 days of paying is refunded to the original payment method through Stripe within 14 days of your request (see https://citedby.eu/refund for work already started). A Monthly cancellation stops the next charge; the month already paid runs to its end.\n\nIf you did not send this, reply to this message and we will ignore it.\n\nCitedBy · Legal notice: https://citedby.eu/legal\n",
+  ok="We received your {kind} on {when} (UTC). A confirmation is on its way to {email}. We reply within 2 working days.", bad="Check the email address and try again."),
+ "fr": dict(subj="Nous avons bien reçu votre {kind} (CitedBy)", kind={"withdraw": "rétractation", "cancel": "résiliation"}, what={"fixpack": "Fix Pack", "monthly": "CitedBy Monthly"},
+  body="Bonjour,\n\nNous avons reçu votre {kind} le {when} (UTC).\nProduit : {what}\nCommande ou boutique : {ref}\n\nEt ensuite : nous rapprochons cette adresse de votre paiement et répondons sous 2 jours ouvrés. Une rétractation dans les 14 jours suivant le paiement est remboursée sur le moyen de paiement d'origine via Stripe, dans les 14 jours suivant votre demande (voir https://citedby.eu/fr/refund pour le travail déjà commencé). La résiliation de Monthly arrête le prélèvement suivant ; le mois déjà payé va jusqu'à son terme.\n\nSi vous n'êtes pas à l'origine de ce message, répondez-nous et nous n'y donnerons pas suite.\n\nCitedBy · Mentions légales : https://citedby.eu/fr/legal\n",
+  ok="Nous avons reçu votre {kind} le {when} (UTC). Une confirmation est en route vers {email}. Nous répondons sous 2 jours ouvrés.", bad="Vérifiez l'adresse e-mail et réessayez."),
+}
+
+
+def handle_cancel(form, ip):
+    """Returns (status, html page). Records the statement at once; the confirmation mail is the durable acknowledgement."""
+    g = lambda k: (form.get(k) or [""])[0].strip()
+    if g("website"):  # honeypot
+        return 200, page("OK")
+    lang = g("lang") if g("lang") in ("en", "fr") else "en"
+    t = CANCEL_TXT[lang]
+    email, what = g("email").lower(), g("what")
+    kind = "cancel" if g("kind") == "cancel" else "withdraw"
+    domain = email.rpartition("@")[2]
+    if (not EMAIL_RE.match(email) or len(email) > 320 or domain.startswith(".") or domain.endswith(".") or ".." in domain
+            or what not in CANCEL_WHAT or (kind == "cancel" and what != "monthly")):
+        return 400, page(t["bad"], lang)
+    if limited("cancel:" + ip, REQ_PER_IP):
+        return 429, page(t["bad"], lang)
+    ref = re.sub(r"[\r\n]+", " ", g("ref"))[:200]
+    now = int(time.time())
+    when = time.strftime("%Y-%m-%d %H:%M", time.gmtime(now))
+    with _lock:
+        rid = _db.execute("INSERT INTO cancel_request(email,what,kind,ref,lang,ts) VALUES(?,?,?,?,?,?)", (email, what, kind, ref, lang, now)).lastrowid
+        capped = _db.execute("SELECT count(*) FROM mail_log WHERE email=? AND ts>?", (inbox_key(email), now - 86400)).fetchone()[0] >= MAILS_PER_ADDR_DAY + 2
+        if not capped:
+            _db.execute("INSERT INTO mail_log(email,ts) VALUES(?,?)", (inbox_key(email), now))
+        _db.commit()
+    kind_w, what_w = t["kind"][kind], t["what"][what]
+    send_mail(CANCEL_TO, f"[cancel #{rid}] {kind} {what} from {email}", f"{kind} / {what}\nEmail: {email}\nOrder or shop: {ref}\nReceived: {when} UTC\nLang: {lang}\n\nMatch the email to a Stripe payment, act, and reply.\n", {"Reply-To": email})
+    if not capped and send_mail(email, t["subj"].format(kind=kind_w), t["body"].format(kind=kind_w, when=when, what=what_w, ref=ref or "-")):
+        with _lock:
+            _db.execute("UPDATE cancel_request SET ack_sent=1 WHERE id=?", (rid,))
+            _db.commit()
+    return 200, page(t["ok"].format(kind=kind_w, when=when, email=email), lang)
+
+
 def confirm(rid):
     """Returns lang or None. Confirmed requests wait in the queue; tools/queue.py releases DAILY_CAP a day."""
     today = time.strftime("%Y-%m-%d", time.gmtime())
@@ -292,7 +339,7 @@ def render_home(lang):  # the assistant list is read on every request: a stale t
 
 
 ROUTES = {"/check": "check.html", "/fr/check": "fr/check.html", "/nl/check": "nl/check.html",
-          "/legal": "legal.html", "/privacy": "privacy.html"}
+          "/legal": "legal.html", "/privacy": "privacy.html", "/cancel": "cancel.html", "/fr/resilier": "fr/resilier.html"}
 CSP = ("default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; script-src 'self'; connect-src 'self'; "
        "base-uri 'self'; form-action 'self' https://buy.stripe.com mailto:; frame-ancestors 'none'")
 
@@ -404,6 +451,9 @@ class H(BaseHTTPRequestHandler):
         if n > 4096:
             return self.out(413, b'{"ok":false}', "application/json")
         raw = self.rfile.read(n) if n else b""
+        if u.path == "/api/cancel":  # plain HTML form post, no script needed
+            code, body = handle_cancel(parse_qs(raw.decode("utf-8", "replace")), self.ip())
+            return self.out(code, body)
         try:
             data = json.loads(raw or b"{}")
             if not isinstance(data, dict):
