@@ -101,7 +101,7 @@ class _Conn(http.client.HTTPConnection):
             self.sock = CTX.wrap_socket(self.sock, server_hostname=self.host)
 
 
-def fetch(url, deadline=None, max_body=MAX_BODY, accept_lang="en"):
+def fetch(url, deadline=None, max_body=MAX_BODY, accept_lang="en", ua=None):
     """GET url following validated redirects. Returns dict(status, url, body, error). Never raises on network errors.
     Raises Blocked only for the first URL; a blocked redirect hop returns error='blocked:<why>'."""
     deadline = deadline or time.monotonic() + 10  # time.monotonic() value
@@ -132,7 +132,7 @@ def fetch(url, deadline=None, max_body=MAX_BODY, accept_lang="en"):
         timer.start()
         try:
             path = (u.path or "/") + ("?" + u.query if u.query else "")
-            c.request("GET", path, headers={"Host": u.netloc.rsplit("@", 1)[-1], "User-Agent": UA, "Accept-Language": accept_lang,
+            c.request("GET", path, headers={"Host": u.netloc.rsplit("@", 1)[-1], "User-Agent": ua or UA, "Accept-Language": accept_lang,
                                             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "Connection": "close"})
             r = c.getresponse()
             if r.status in (301, 302, 303, 307, 308) and r.getheader("Location"):

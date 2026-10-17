@@ -8,6 +8,11 @@ from urllib.parse import urljoin, urlsplit
 
 import safefetch
 
+BOT_UAS = {  # published user-agent strings; a request from our server carries the string only, not the vendor's IP range
+    "GPTBot": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.1; +https://openai.com/gptbot)",
+    "ClaudeBot": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ClaudeBot/1.0; +claudebot@anthropic.com)",
+    "PerplexityBot": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; PerplexityBot/1.0; +https://perplexity.ai/perplexitybot)",
+}
 BOTS = ["OAI-SearchBot", "GPTBot", "PerplexityBot", "Google-Extended", "Bingbot"]
 ORG_TYPES = {"Organization", "LocalBusiness", "Store", "OnlineStore", "OnlineBusiness", "CafeOrCoffeeShop", "Corporation"}
 PRODUCT_PATH = re.compile(r"/(products?|produits?|producten|shop/[^/]+)/[^/?#]+", re.I)
@@ -87,6 +92,15 @@ def find_product_url(root, home_html, fetch):
     return next((l for l in links if PRODUCT_PATH.search(urlsplit(l).path)), "")
 
 
+def bot_access(home, bot_fetch):
+    """Fetch the homepage once per bot user-agent. Returns (blocked bot names, True if any fetch was conclusive).
+    Only an explicit refusal (401/403/429/503) while the normal fetch returned 200 counts; timeouts are unknown."""
+    with ThreadPoolExecutor(len(BOT_UAS)) as ex:
+        res = dict(zip(BOT_UAS, ex.map(lambda n: bot_fetch(BOT_UAS[n]), BOT_UAS)))
+    blocked = [n for n, r in res.items() if r["status"] in (401, 403, 429, 503)]
+    return blocked, any(r["status"] for r in res.values())
+
+
 def run(raw_url, lang="en", timeout=18):
     root = normalize(raw_url)
     deadline = time.monotonic() + timeout
@@ -108,6 +122,10 @@ def run(raw_url, lang="en", timeout=18):
     rp.parse(robots["body"].splitlines() if robots["status"] == 200 else [])
     blocked = [b for b in BOTS if robots["status"] == 200 and not rp.can_fetch(b, root + "/")]
     add("crawlers", "fail" if blocked else "pass", blocked=blocked, checked=BOTS, robots_found=robots["status"] == 200)
+    # 1b. does the server or CDN answer the same page to AI bot user-agents
+    if time.monotonic() < deadline:
+        bl, known = bot_access(home, lambda ua: safefetch.fetch(root + "/", deadline=deadline, accept_lang=lang, ua=ua))
+        add("bot_access", "fail" if bl else "pass" if known else "unknown", blocked=bl, checked=list(BOT_UAS))
     # 2. text in the raw HTML. A 200 with no readable text is a fetch we cannot judge (server answered us an empty body), never a verdict on the shop.
     words = len(visible_text(home["body"]).split())
     unreadable = words == 0
