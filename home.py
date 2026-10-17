@@ -159,7 +159,7 @@ T = {
   behind_h="Qui est derrière CitedBy",
   behind="CitedBy est un petit service indépendant exploité depuis l'Espagne. Nous vendons les corrections, c'est pourquoi chaque audit liste les sites que chaque assistant a liés à chaque essai : vous pouvez vérifier notre compte vous-même.",
   legal="Mentions légales", cta_h="Voyez où vous en êtes, gratuitement", cta="Envoyez l'adresse de votre boutique et recevez 16 réponses sur votre catégorie, qui est cité à votre place, et 2 à 3 corrections.",
-  foot=(("/data", "Données"), ("/terms", "Conditions"), ("/refund", "Remboursements"), ("/contact", "Contact"), ("/legal", "Mentions légales"), ("/privacy", "Confidentialité")),
+  foot=(("/data", "Données"), ("/fr/terms", "Conditions"), ("/fr/refund", "Remboursements"), ("/fr/contact", "Contact"), ("/fr/legal", "Mentions légales"), ("/fr/privacy", "Confidentialité")),
   svc="CitedBy : audit et corrections de visibilité dans les assistants IA", svc_type="Visibilité IA pour boutiques en ligne", free_offer="Test gratuit", fp_offer="Fix Pack (payé une fois)", locale="fr",
  ),
 }
@@ -198,6 +198,7 @@ def render(lang, engines, css_ver="", check_css_ver=""):
         ld["description"] = eline_plain(t, day, names, lang)
     ld_json = json.dumps(ld, ensure_ascii=False).replace("</", "<\\/")
     alts = '<link rel="alternate" hreflang="en" href="https://citedby.eu/"><link rel="alternate" hreflang="fr" href="https://citedby.eu/fr"><link rel="alternate" hreflang="x-default" href="https://citedby.eu/">'
+    sa, lg = ("/fr/sample-audit", "/fr/legal") if lang == "fr" else ("/sample-audit", "/legal")
     switch = " / ".join(f'<a href="{p}" hreflang="{l}" lang="{l}"{" aria-current=\"page\"" if l == lang else ""}>{l.upper()}</a>' for l, p in (("en", "/"), ("fr", "/fr")))
     chk = "/check" if lang == "en" else "/fr/check"
     # /instant is English only until RES-1130: FR keeps the crawler check as its primary
@@ -227,7 +228,7 @@ def render(lang, engines, css_ver="", check_css_ver=""):
 <script type="application/ld+json">{ld_json}</script>
 </head><body>
 <a class="skip" href="#main">{E(t["skip"])}</a>
-<header class="top"><a class="logo" href="{t["path"]}" aria-label="{E(t["home"])}"><svg class="mark" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true" focusable="false"><rect width="32" height="32" fill="#0F1B2D"/><path d="M9 10h14M9 16h14M9 22h8" stroke="#fff" stroke-width="3"/><rect x="20" y="19" width="6" height="6" fill="#2F6BFF"/></svg><span>CitedBy</span></a><div class="hnav"><nav aria-label="Main"><a class="k" href="{chk}">{E(t["nav"][0])}</a><a href="/sample-audit">{E(t["nav"][1])}</a><a class="k" href="#prices">{E(t["nav"][2])}</a><a href="#faq">{E(t["nav"][3])}</a></nav><span class="lsw" aria-label="Language">{switch}</span></div></header>
+<header class="top"><a class="logo" href="{t["path"]}" aria-label="{E(t["home"])}"><svg class="mark" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true" focusable="false"><rect width="32" height="32" fill="#0F1B2D"/><path d="M9 10h14M9 16h14M9 22h8" stroke="#fff" stroke-width="3"/><rect x="20" y="19" width="6" height="6" fill="#2F6BFF"/></svg><span>CitedBy</span></a><div class="hnav"><nav aria-label="Main"><a class="k" href="{chk}">{E(t["nav"][0])}</a><a href="{sa}">{E(t["nav"][1])}</a><a class="k" href="#prices">{E(t["nav"][2])}</a><a href="#faq">{E(t["nav"][3])}</a></nav><span class="lsw" aria-label="Language">{switch}</span></div></header>
 
 <main id="main" class="page">
 <section class="sec hero">
@@ -247,7 +248,7 @@ def render(lang, engines, css_ver="", check_css_ver=""):
 <p>{E(t["s_sub"].format(assistant=s["assistant"], q=s["questions"]))}</p>
 <div class="tw"><table><thead><tr><th scope="col">{E(t["s_q"])}</th><th scope="col">{E(t["s_n"])}</th><th scope="col">{E(t["s_t"])}</th></tr></thead><tbody>{rows}</tbody></table></div>
 <p class="note">{E(t["s_note"].format(date=sdate))}</p>
-<p><a class="link" href="/sample-audit">{E(t["s_more"])}</a></p></div></section>
+<p><a class="link" href="{sa}">{E(t["s_more"])}</a></p></div></section>
 
 <section id="how" class="sec"><div class="col"><h2>{E(t["how_h"])}</h2>
 <ol class="steps">{steps}</ol><p>{E(t["how_close"])}</p></div></section>
@@ -274,7 +275,7 @@ def render(lang, engines, css_ver="", check_css_ver=""):
 </div></section>
 
 <section id="behind" class="sec"><div class="col"><h2>{E(t["behind_h"])}</h2>
-<p>{E(t["behind"])} <a href="/legal">{E(t["legal"])}</a>.</p></div></section>
+<p>{E(t["behind"])} <a href="{lg}">{E(t["legal"])}</a>.</p></div></section>
 
 <section class="sec cta"><div class="col"><h2>{E(t["cta_h"])}</h2><p class="lede">{E(t["cta"])}</p><div class="actions"><a class="btn p" href="{pri}">{E(pri_txt)}</a></div></div></section>
 </main>
