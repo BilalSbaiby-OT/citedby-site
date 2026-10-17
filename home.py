@@ -51,7 +51,7 @@ T = {
  "en": dict(
   path="/", other="/fr", skip="Skip to content", home="CitedBy home", nav=("Free check", "Sample audit", "Prices", "FAQ"),
   title="CitedBy: who do AI assistants name instead of your shop?",
-  desc="We ask AI assistants your buyers' questions, count who gets named, fix your pages and count again at day 30. Free check, then a Fix Pack at €390, paid once.",
+  desc="We ask AI assistants your buyers' questions, count who gets named, fix your pages, recount at day 30. Free check, then a Fix Pack at €390, paid once.",
   ogt="Who do AI assistants name instead of your shop?", ogd="Free check of your shop. Fix Pack €390 paid once, with a recount at day 30.",
   eyebrow="AI assistant visibility for online shops",
   h1="Is an AI assistant sending your customers to a competitor?",
@@ -218,8 +218,8 @@ def render(lang, engines, css_ver="", check_css_ver=""):
 <title>{E(t["title"])}</title>
 <meta name="description" content="{E(t["desc"])}">
 <link rel="canonical" href="https://citedby.eu{t["path"]}">{alts}
-<meta property="og:title" content="{E(t["ogt"])}"><meta property="og:description" content="{E(t["ogd"])}"><meta property="og:url" content="https://citedby.eu{t["path"]}"><meta property="og:type" content="website"><meta property="og:locale" content="{"fr_FR" if lang == "fr" else "en_IE"}">
-<meta name="twitter:card" content="summary"><meta name="twitter:title" content="{E(t["ogt"])}"><meta name="twitter:description" content="{E(t["ogd"])}">
+<meta property="og:title" content="{E(t["ogt"])}"><meta property="og:description" content="{E(t["ogd"])}"><meta property="og:url" content="https://citedby.eu{t["path"]}"><meta property="og:type" content="website"><meta property="og:image" content="https://citedby.eu/og.png"><meta property="og:locale" content="{"fr_FR" if lang == "fr" else "en_IE"}">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://citedby.eu/og.png"><meta name="twitter:title" content="{E(t["ogt"])}"><meta name="twitter:description" content="{E(t["ogd"])}">
 <meta name="theme-color" content="#0F1B2D">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="/fonts/newsreader-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
