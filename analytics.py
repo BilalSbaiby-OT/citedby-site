@@ -3,7 +3,7 @@ POSTHOG_KEY="" switches the tag off (rollback without a redeploy of code)."""
 import os, threading, urllib.request
 
 KEY = os.environ.get("POSTHOG_KEY", "phc_r2uexPGqx2dCYjsFKnevTB8rf8Ez9B6twoMXcfFceHzD")
-TAG = ('<script src="/riq-a.js?v=1" data-key="%s" data-site="citedby" data-endpoint="/riq-e" defer></script>' % KEY).encode()
+TAG = ('<script src="/riq-a.js?v=2" data-key="%s" data-site="citedby" data-endpoint="/riq-e" defer></script>' % KEY).encode()
 
 
 def inject(body):

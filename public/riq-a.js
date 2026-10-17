@@ -19,7 +19,7 @@
       $screen_width: screen.width, $screen_height: screen.height, $viewport_width: innerWidth, $viewport_height: innerHeight,
       $timezone: (Intl.DateTimeFormat().resolvedOptions() || {}).timeZone, $language: navigator.language, site: site
     };
-    ["utm_source", "utm_medium", "utm_campaign", "ref"].forEach(function (k) { if (q.get(k)) p[k] = String(q.get(k)).slice(0, 80); });
+    ["utm_source", "utm_medium", "utm_campaign", "utm_content", "ref"].forEach(function (k) { if (q.get(k)) p[k] = String(q.get(k)).slice(0, 80); });
     if (document.referrer) { try { var r = new URL(document.referrer); p.$referrer = r.origin + r.pathname; p.$referring_domain = r.host; } catch (e) {} }
     return p;
   }
