@@ -22,7 +22,7 @@ button.btn{cursor:pointer}button.btn:disabled{opacity:.55;cursor:wait}
 .st{display:inline-block;min-width:7.5em;font:600 13px var(--sans);letter-spacing:.02em;text-transform:uppercase;padding:2px var(--s2);border:1px solid var(--navy);color:var(--navy);background:#fff}
 .st.fail{background:var(--correction);border-color:var(--correction);color:#fff}
 .st.warn{background:var(--wash)}
-.st.na,.st.info{color:var(--muted);border-color:var(--rule)}
+.st.na,.st.info,.st.unknown{color:var(--muted);border-color:var(--rule)}
 .snap,.mailbox,.fixbox{margin-top:var(--s12);padding-top:var(--s6);border-top:3px solid var(--navy)}
 .snap h2,.mailbox h2,.fixbox h2{font-size:30px}
 .tally{border-top:2px solid var(--navy);margin:var(--s4) 0}.tally .rk{display:flex;justify-content:space-between;gap:var(--s4);margin:0;padding:var(--s3) 0;border-bottom:1px solid var(--rule);font:400 17px var(--sans)}.tally .rk .n{color:var(--navy);font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}

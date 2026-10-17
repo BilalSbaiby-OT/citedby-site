@@ -15,8 +15,9 @@ S = {
   langs=dict(en="English", fr="French", nl="Dutch"), more="German and Spanish pages are coming.",
   nav_home="Home", nav_prices="Prices",
   js=dict(
-    m_h="How this is checked", busy="Checking your shop…", r_h="Door check for", r_sum="{pass} of {total} checks passed", method="Method: plain HTTP fetch, no JavaScript. This is a technical check; it does not tell you whether an AI assistant will name your shop.",
+    m_h="How this is checked", busy="Checking your shop…", r_h="Door check for", r_sum="{pass} of {total} checks passed", r_sum_one="1 of {total} checks passed", method="Method: plain HTTP fetch, no JavaScript. This is a technical check; it does not tell you whether an AI assistant will name your shop.",
     s_pass="OK", s_fail="Fix", s_warn="Check", s_na="Not checked", s_info="Optional", on_page="Checked on {url}",
+    unknown="We could not read this page: the server sent no text to our request. This is not a verdict on your site. Run the check again, or send us the address and we check it by hand.", s_unknown="Not checked", raw_text_unknown="We could not read this page: the server sent no text to our request. This is not a verdict on your site. Run the check again, or send us the address and we check it by hand.", org_schema_unknown="We could not read this page: the server sent no text to our request. This is not a verdict on your site. Run the check again, or send us the address and we check it by hand.",
     t_crawlers="AI crawlers allowed in robots.txt", t_raw_text="Text in the page HTML", t_org_schema="Organization data (JSON-LD)", t_product_schema="Product data (JSON-LD)",
     t_product_price="Price in product data", t_product_availability="Availability in product data", t_product_gtin="GTIN or barcode in product data", t_llms_txt="llms.txt",
     crawlers_pass="None of OAI-SearchBot, GPTBot, PerplexityBot, Google-Extended or Bingbot is blocked in robots.txt.", crawlers_pass_norobots="No robots.txt found, so nothing is blocked.",
@@ -50,8 +51,9 @@ S = {
   langs=dict(en="anglais", fr="français", nl="néerlandais"), more="Les pages allemande et espagnole arrivent.",
   nav_home="Accueil", nav_prices="Tarifs",
   js=dict(
-    m_h="Comment c'est vérifié", busy="Vérification en cours…", r_h="Contrôle d'accès pour", r_sum="{pass} contrôles réussis sur {total}", method="Méthode : requête HTTP simple, sans JavaScript. C'est un contrôle technique ; il ne dit pas si un assistant IA citera votre boutique.",
+    m_h="Comment c'est vérifié", busy="Vérification en cours…", r_h="Contrôle d'accès pour", r_sum="{pass} contrôles réussis sur {total}", r_sum_one="1 contrôle réussi sur {total}", method="Méthode : requête HTTP simple, sans JavaScript. C'est un contrôle technique ; il ne dit pas si un assistant IA citera votre boutique.",
     s_pass="OK", s_fail="À corriger", s_warn="À vérifier", s_na="Non vérifié", s_info="Facultatif", on_page="Vérifié sur {url}",
+    unknown="Nous n'avons pas pu lire cette page : le serveur n'a renvoyé aucun texte à notre requête. Ce n'est pas un verdict sur votre site. Relancez le contrôle, ou envoyez-nous l'adresse et nous la vérifions à la main.", s_unknown="Non vérifié", raw_text_unknown="Nous n'avons pas pu lire cette page : le serveur n'a renvoyé aucun texte à notre requête. Ce n'est pas un verdict sur votre site. Relancez le contrôle, ou envoyez-nous l'adresse et nous la vérifions à la main.", org_schema_unknown="Nous n'avons pas pu lire cette page : le serveur n'a renvoyé aucun texte à notre requête. Ce n'est pas un verdict sur votre site. Relancez le contrôle, ou envoyez-nous l'adresse et nous la vérifions à la main.",
     t_crawlers="Robots IA autorisés dans robots.txt", t_raw_text="Texte dans le HTML de la page", t_org_schema="Données Organization (JSON-LD)", t_product_schema="Données Product (JSON-LD)",
     t_product_price="Prix dans les données produit", t_product_availability="Disponibilité dans les données produit", t_product_gtin="GTIN ou code-barres dans les données produit", t_llms_txt="llms.txt",
     crawlers_pass="Aucun de OAI-SearchBot, GPTBot, PerplexityBot, Google-Extended ou Bingbot n'est bloqué dans robots.txt.", crawlers_pass_norobots="Aucun robots.txt trouvé : rien n'est bloqué.",
@@ -85,8 +87,9 @@ S = {
   langs=dict(en="Engels", fr="Frans", nl="Nederlands"), more="Duitse en Spaanse pagina's volgen.",
   nav_home="Home", nav_prices="Prijzen",
   js=dict(
-    m_h="Hoe dit gecheckt wordt", busy="Je shop wordt gecheckt…", r_h="Toegangscheck voor", r_sum="{pass} van {total} checks geslaagd", method="Methode: gewone HTTP-opvraging, zonder JavaScript. Dit is een technische check; hij zegt niet of een AI-assistent je shop zal noemen.",
+    m_h="Hoe dit gecheckt wordt", busy="Je shop wordt gecheckt…", r_h="Toegangscheck voor", r_sum="{pass} van {total} checks geslaagd", r_sum_one="1 van {total} checks geslaagd", method="Methode: gewone HTTP-opvraging, zonder JavaScript. Dit is een technische check; hij zegt niet of een AI-assistent je shop zal noemen.",
     s_pass="OK", s_fail="Aanpassen", s_warn="Nakijken", s_na="Niet gecheckt", s_info="Optioneel", on_page="Gecheckt op {url}",
+    unknown="We konden deze pagina niet lezen: de server stuurde geen tekst terug op ons verzoek. Dit is geen oordeel over je site. Draai de check opnieuw, of stuur ons het adres en we checken het met de hand.", s_unknown="Niet gecheckt", raw_text_unknown="We konden deze pagina niet lezen: de server stuurde geen tekst terug op ons verzoek. Dit is geen oordeel over je site. Draai de check opnieuw, of stuur ons het adres en we checken het met de hand.", org_schema_unknown="We konden deze pagina niet lezen: de server stuurde geen tekst terug op ons verzoek. Dit is geen oordeel over je site. Draai de check opnieuw, of stuur ons het adres en we checken het met de hand.",
     t_crawlers="AI-crawlers toegelaten in robots.txt", t_raw_text="Tekst in de HTML van de pagina", t_org_schema="Organization-data (JSON-LD)", t_product_schema="Product-data (JSON-LD)",
     t_product_price="Prijs in de productdata", t_product_availability="Beschikbaarheid in de productdata", t_product_gtin="GTIN of barcode in de productdata", t_llms_txt="llms.txt",
     crawlers_pass="Geen van OAI-SearchBot, GPTBot, PerplexityBot, Google-Extended of Bingbot wordt geblokkeerd in robots.txt.", crawlers_pass_norobots="Geen robots.txt gevonden, dus niets wordt geblokkeerd.",

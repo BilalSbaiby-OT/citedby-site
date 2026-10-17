@@ -133,7 +133,7 @@ def fetch(url, deadline=None, max_body=MAX_BODY, accept_lang="en"):
         try:
             path = (u.path or "/") + ("?" + u.query if u.query else "")
             c.request("GET", path, headers={"Host": u.netloc.rsplit("@", 1)[-1], "User-Agent": UA, "Accept-Language": accept_lang,
-                                            "Accept": "text/html,text/plain,application/json;q=0.9,*/*;q=0.5", "Connection": "close"})
+                                            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "Connection": "close"})
             r = c.getresponse()
             if r.status in (301, 302, 303, 307, 308) and r.getheader("Location"):
                 cur = urljoin(cur, r.getheader("Location"))

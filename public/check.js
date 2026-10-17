@@ -10,6 +10,7 @@
   function checkText(c, res) {
     var id = c.id, st = c.status;
     if (st === "na") return T.na;
+    if (st === "unknown") return T.unknown;
     var key = id + "_" + st;
     if (id === "crawlers" && st === "pass" && !c.robots_found) key = "crawlers_pass_norobots";
     return fmt(T[key] || "", { bots: (c.blocked || []).join(", "), words: c.words, found: (c.found || []).join(", ") });
@@ -18,9 +19,9 @@
     resEl.textContent = ""; var col = el("div", "col"), margin = el("aside", "margin"); margin.appendChild(el("b", null, T.m_h)); margin.appendChild(document.createTextNode(T.method));
     resEl.appendChild(col); resEl.appendChild(margin);
     var checks = res.checks || [], pass = checks.filter(function (c) { return c.status === "pass"; }).length;
-    var counted = checks.filter(function (c) { return c.status !== "na" && c.status !== "info"; }).length;
+    var counted = checks.filter(function (c) { return c.status !== "na" && c.status !== "info" && c.status !== "unknown"; }).length;
     var h = el("h2", null, T.r_h + " " + res.site.replace(/^https?:\/\//, "")); col.appendChild(h);
-    col.appendChild(el("p", "sum", fmt(T.r_sum, { pass: pass, total: counted })));
+    col.appendChild(el("p", "sum", fmt(pass === 1 && T.r_sum_one ? T.r_sum_one : T.r_sum, { pass: pass, total: counted })));
     if (res.redirected_to) col.appendChild(el("p", "note", fmt(T.redirected, { url: res.redirected_to.replace(/^https?:\/\//, "") })));
     var ul = el("ul", "cl");
     checks.forEach(function (c) {
