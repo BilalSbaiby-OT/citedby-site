@@ -1,5 +1,5 @@
 (function () {
-  var D = JSON.parse(document.getElementById("i18n").textContent), T = D.js, $ = function (id) { return document.getElementById(id); };
+  var INSTANT = { fr: "/fr/instant" }, /* add nl when /nl/instant opens (RES-1130) */ D = JSON.parse(document.getElementById("i18n").textContent), T = D.js, $ = function (id) { return document.getElementById(id); };
   var form = $("cf"), statusEl = $("status"), resEl = $("result"), busy = false;
   function fmt(s, v) { return s.replace(/\{(\w+)\}/g, function (_, k) { return v && v[k] != null ? v[k] : ""; }); }
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
@@ -36,7 +36,7 @@
     mailBox(res, col);
     var sc = el("div", "snap"); sc.appendChild(el("h2", null, T.scan_h)); sc.appendChild(el("p", null, T.scan_p));
     var q = "domain=" + encodeURIComponent($("f-url").value.trim()) + "&country=" + encodeURIComponent($("f-country").value) + "&lang=" + encodeURIComponent($("f-lang").value) + ($("f-niche").value === "other" ? "" : "&category=" + encodeURIComponent($("f-niche").value));
-    var sa = el("a", "btn p", T.scan_go); sa.href = "/instant?" + q; sc.appendChild(sa); col.appendChild(sc);
+    var sa = el("a", "btn p", T.scan_go); sa.href = (INSTANT[D.lang] || "/instant") + "?" + q; sc.appendChild(sa); col.appendChild(sc);
     var fx = el("div", "fixbox"); fx.appendChild(el("h2", null, T.fix_h)); fx.appendChild(el("p", null, T.fix_p));
     var a = el("a", "btn g", T.fix_go); a.href = D.price_url; a.rel = "noopener";
     a.addEventListener("click", function () { try { navigator.sendBeacon("/api/event", new Blob([JSON.stringify({ type: "fixpack_click", lang: D.lang })], { type: "application/json" })); } catch (e) {} });

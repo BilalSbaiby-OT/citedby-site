@@ -50,9 +50,9 @@ class T(unittest.TestCase):
         self.assertEqual(self.get("/plans")[0], 404); self.assertEqual(SEEN, [])
 
     def test_allowlist_only(self):
-        for p in ("/instant", "/plans?billing=year", "/dashboard", "/account", "/recount/" + "a" * 24, "/api/snapshot/7", "/api/snapshot/" + "Hn-hGKmWgDksJUToqNLfgw", "/thanks", "/report/" + "a" * 24):
+        for p in ("/instant", "/fr/instant", "/nl/instant?domain=x.com", "/plans?billing=year", "/dashboard", "/account", "/recount/" + "a" * 24, "/api/snapshot/7", "/api/snapshot/" + "Hn-hGKmWgDksJUToqNLfgw", "/thanks", "/thanks?session_id=cs_live_a1", "/report/" + "a" * 24, "/start/" + "a" * 43):
             self.assertEqual(self.get(p)[1], b"app-page", p)
-        for p in ("/", "/fr", "/health-x", "/api/order", "/thanksx", "/report/short", "/report/" + "a" * 65, "/api/snapshot/short", "/api/snapshot/" + "a" * 65, "/api/snapshot/abc/def", "/plansx", "/instantx", "/../plans"):
+        for p in ("/", "/fr", "/health-x", "/api/order", "/api/stripe/webhook", "/thanksx", "/report/short", "/report/" + "a" * 65, "/start/short", "/start/" + "a" * 65, "/api/fixpack/intake", "/api/snapshot/short", "/api/snapshot/" + "a" * 65, "/api/snapshot/abc/def", "/plansx", "/instantx", "/../plans", "/de/instant", "/fr/plans", "/fr/instantx", "/fr/dashboard"):
             self.assertEqual(self.get(p)[0], 404, p)
 
     def test_forwards_one_client_ip_and_cookie_not_spoofed_xff(self):
@@ -80,6 +80,10 @@ class T(unittest.TestCase):
         req = urllib.request.Request(self.base + "/api/stripe/webhook", raw, {"Content-Type": "application/json", "Stripe-Signature": "t=1,v1=ab"})
         self.assertEqual(urllib.request.urlopen(req).read(), b"app-page"); self.assertEqual(SEEN[0][4], raw)
         self.assertEqual(SEEN[0][1], "/api/stripe/webhook"); self.assertEqual(SIG[-1], "t=1,v1=ab")
+
+    def test_fixpack_intake_post_is_forwarded(self):
+        req = urllib.request.Request(self.base + "/api/fixpack/intake", b'{"token":"t"}', {"Content-Type": "application/json"})
+        self.assertEqual(urllib.request.urlopen(req).read(), b"app-page"); self.assertEqual(SEEN[0][1], "/api/fixpack/intake")
 
     def test_upstream_down_is_502_not_a_crash(self):
         proxy.UPSTREAM = "http://127.0.0.1:1"
