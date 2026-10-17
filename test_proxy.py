@@ -9,7 +9,7 @@ class Stub(BaseHTTPRequestHandler):
     def log_message(self, *a): pass
     def _do(self):
         n = int(self.headers.get("Content-Length") or 0)
-        SEEN.append((self.command, self.path, self.headers.get("X-Forwarded-For"), self.headers.get("Cookie"), self.rfile.read(n)))
+        SEEN.append((self.command, self.path, self.headers.get("X-Forwarded-For"), self.headers.get("Cookie"), self.rfile.read(n), self.headers.get("Stripe-Signature")))
         if self.path.startswith("/health"):
             b = b'{"status":"ok","deploy":"abc1234","db":"ok","ok":true}'
         else:
@@ -50,12 +50,19 @@ class T(unittest.TestCase):
     def test_allowlist_only(self):
         for p in ("/instant", "/plans?billing=year", "/dashboard", "/account", "/recount/" + "a" * 24, "/api/snapshot/7", "/api/snapshot/" + "Hn-hGKmWgDksJUToqNLfgw"):
             self.assertEqual(self.get(p)[1], b"app-page", p)
-        for p in ("/", "/fr", "/health-x", "/api/order", "/api/stripe/webhook", "/report/" + "a" * 24, "/api/snapshot/short", "/api/snapshot/" + "a" * 65, "/api/snapshot/abc/def", "/plansx", "/instantx", "/../plans"):
+        for p in ("/", "/fr", "/health-x", "/api/order", "/report/" + "a" * 24, "/api/snapshot/short", "/api/snapshot/" + "a" * 65, "/api/snapshot/abc/def", "/plansx", "/instantx", "/../plans"):
             self.assertEqual(self.get(p)[0], 404, p)
+
+    def test_stripe_webhook_is_forwarded_post_only_with_raw_body_and_signature(self):
+        req = urllib.request.Request(self.base + "/api/stripe/webhook", b'{"id":"evt_1"}', {"Stripe-Signature": "t=1,v1=ab", "Content-Type": "application/json"})
+        self.assertEqual(urllib.request.urlopen(req).read(), b"app-page")
+        self.assertEqual(SEEN[0][1], "/api/stripe/webhook"); self.assertEqual(SEEN[0][4], b'{"id":"evt_1"}')
+        self.assertEqual(SEEN[0][5], "t=1,v1=ab")
+        self.assertEqual(self.get("/api/stripe/webhook")[0], 404)  # GET is not a route
 
     def test_forwards_one_client_ip_and_cookie_not_spoofed_xff(self):
         self.get("/account", headers={"Cookie": "ci_session=abc", "X-Forwarded-For": "1.1.1.1, 2.2.2.2"})
-        m, path, xff, ck, _ = SEEN[0]
+        m, path, xff, ck, _, _ = SEEN[0]
         self.assertEqual(xff, "203.0.113.9"); self.assertEqual(ck, "ci_session=abc")
 
     def test_response_headers_are_filtered_and_robots_blocked(self):
