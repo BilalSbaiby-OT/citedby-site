@@ -17,3 +17,13 @@ def test_inject_leaves_fragments_alone_and_off_switch_works(monkeypatch):
 
 def test_no_query_or_email_in_tag():
     assert b"@" not in analytics.TAG and b"?" not in analytics.TAG.replace(b"riq-a.js?v=1", b"")
+
+
+def test_relay_ignores_empty_and_oversize_bodies(monkeypatch):
+    calls = []
+    monkeypatch.setattr(analytics.threading, "Thread", lambda **k: type("T", (), {"start": lambda s: calls.append(1)})())
+    analytics.relay(b"", "1.2.3.4", "ua")
+    analytics.relay(b"x" * 9000, "1.2.3.4", "ua")
+    assert calls == []
+    analytics.relay(b'{"event":"x"}', "1.2.3.4", "ua")
+    assert calls == [1]
