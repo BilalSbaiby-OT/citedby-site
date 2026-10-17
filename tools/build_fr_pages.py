@@ -70,8 +70,8 @@ def sample():
     return f'''<!doctype html>
 <html lang="fr"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Exemple d'audit : un torréfacteur belge cité dans {n} réponse sur {a} des assistants IA | CitedBy</title>
-<meta name="description" content="Un exemple complet d'audit CitedBy, boutique anonymisée : {q} questions d'acheteur posées deux fois, chaque site lié par l'assistant et les réponses brutes en CSV.">
+<title>Exemple d'audit : cité dans {n} réponse sur {a} | CitedBy</title>
+<meta name="description" content="Un exemple complet d'audit CitedBy, boutique anonymisée : {q} questions d'acheteur posées deux fois, chaque site lié et les réponses brutes en CSV.">
 {alts("sample-audit")}
 <meta property="og:title" content="Exemple d'audit : cité dans {n} réponse sur {a} des assistants IA"><meta property="og:description" content="{q} questions d'acheteur posées deux fois, chaque site lié, réponses brutes en CSV. Boutique anonymisée."><meta property="og:url" content="https://citedby.eu/fr/sample-audit"><meta property="og:type" content="article">
 <meta name="theme-color" content="#0F1B2D">
