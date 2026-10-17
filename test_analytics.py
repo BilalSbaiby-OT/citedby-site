@@ -16,7 +16,7 @@ def test_inject_leaves_fragments_alone_and_off_switch_works(monkeypatch):
 
 
 def test_no_query_or_email_in_tag():
-    assert b"@" not in analytics.TAG and b"?" not in analytics.TAG.replace(b"riq-a.js?v=1", b"")
+    assert b"@" not in analytics.TAG and b"?" not in analytics.TAG.replace(b"riq-a.js?v=3", b"")
 
 
 def test_relay_ignores_empty_and_oversize_bodies(monkeypatch):
