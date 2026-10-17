@@ -217,6 +217,14 @@ def render(lang, engines, css_ver="", check_css_ver=""):
     alts = '<link rel="alternate" hreflang="en" href="https://citedby.eu/"><link rel="alternate" hreflang="fr" href="https://citedby.eu/fr"><link rel="alternate" hreflang="x-default" href="https://citedby.eu/">'
     switch = " / ".join(f'<a href="{p}" hreflang="{l}" lang="{l}"{" aria-current=\"page\"" if l == lang else ""}>{l.upper()}</a>' for l, p in (("en", "/"), ("fr", "/fr")))
     chk = "/check" if lang == "en" else "/fr/check"
+    L = {"en": ("Sample audit", "Named", "Linked", "Top competitor", "of", "answers", "Real audit of a Belgian coffee roaster, run on "), "fr": ("Audit exemple", "Nommée", "Liée", "Concurrent le plus cité", "sur", "réponses", "Audit réel d'un torréfacteur belge, réalisé sur ")}[lang]
+    tot = s["answers"]
+    card = (f'<aside class="auditcard" aria-label="{E(L[0])}"><p class="ac-h"><b>{E(L[0])}</b> · {E(sdate)}</p>'
+            f'<p class="ac-big"><em>{s["named"]}</em> {E(L[4])} {tot} {E(L[5])}</p>'
+            f'<div class="ac-row"><span>{E(L[1])}</span><div class="ac-bar"><i style="width:{s["named"]/tot*100:.0f}%"></i></div><b>{s["named"]}/{tot}</b></div>'
+            f'<div class="ac-row"><span>{E(L[2])}</span><div class="ac-bar"><i style="width:{s["linked"]/tot*100:.0f}%"></i></div><b>{s["linked"]}/{tot}</b></div>'
+            f'<div class="ac-row rival"><span>{E(L[3])}</span><div class="ac-bar"><i style="width:{s["top_competitor_answers"]/tot*100:.0f}%"></i></div><b>{s["top_competitor_answers"]}/{tot}</b></div>'
+            f'<p class="ac-n">{E(L[6])}{E(s["assistant"])}.</p></aside>')
     foot = " &nbsp; ".join(f'<a href="{h}">{E(n)}</a>' for h, n in t["foot"])
     return f'''<!doctype html>
 <html lang="{lang}"><head>
@@ -233,7 +241,7 @@ def render(lang, engines, css_ver="", check_css_ver=""):
 <script type="application/ld+json">{ld_json}</script>
 </head><body>
 <a class="skip" href="#main">{E(t["skip"])}</a>
-<header class="top"><a class="logo" href="{t["path"]}" aria-label="{E(t["home"])}">CitedBy<i aria-hidden="true">1</i></a><div class="hnav"><nav aria-label="Main"><a class="k" href="{chk}">{E(t["nav"][0])}</a><a href="/sample-audit">{E(t["nav"][1])}</a><a class="k" href="#prices">{E(t["nav"][2])}</a><a href="#faq">{E(t["nav"][3])}</a></nav><span class="lsw" aria-label="Language">{switch}</span></div></header>
+<header class="top"><a class="logo" href="{t["path"]}" aria-label="{E(t["home"])}"><svg class="mark" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true" focusable="false"><rect width="32" height="32" fill="#0F1B2D"/><path d="M9 10h14M9 16h14M9 22h8" stroke="#fff" stroke-width="3"/><rect x="20" y="19" width="6" height="6" fill="#2F6BFF"/></svg><span>CitedBy</span></a><div class="hnav"><nav aria-label="Main"><a class="k" href="{chk}">{E(t["nav"][0])}</a><a href="/sample-audit">{E(t["nav"][1])}</a><a class="k" href="#prices">{E(t["nav"][2])}</a><a href="#faq">{E(t["nav"][3])}</a></nav><span class="lsw" aria-label="Language">{switch}</span></div></header>
 
 <main id="main" class="page">
 <section class="sec hero">
@@ -245,6 +253,7 @@ def render(lang, engines, css_ver="", check_css_ver=""):
 <div class="actions"><a class="btn p" href="{chk}">{E(t["go"])}</a><a class="link" href="#sample">{E(t["sample_link"])}</a></div>
 <p class="note" style="margin:var(--s3) 0 0">{E(t["micro"])}</p>
 </div>
+{card}
 </section>
 
 <section id="sample" class="sec"><div class="col"><p class="dateline">{E(t["s_bar"])} · {E(sdate)}</p><h2>{E(t["s_h"])}</h2>
