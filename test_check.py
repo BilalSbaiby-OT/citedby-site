@@ -348,5 +348,27 @@ class Parsing(unittest.TestCase):
         self.assertNotIn("application/json", src)
 
 
+
+class BotAccess(unittest.TestCase):
+    def test_blocked_uas_listed(self):
+        bl, known = doorcheck.bot_access({}, lambda ua: {"status": 403 if "GPTBot" in ua else 200})
+        self.assertEqual((bl, known), (["GPTBot"], True))
+
+    def test_timeouts_are_unknown_not_blocked(self):
+        self.assertEqual(doorcheck.bot_access({}, lambda ua: {"status": 0}), ([], False))
+
+    def test_run_reports_bot_access_fail_and_pass(self):
+        page = {"status": 200, "url": "https://s.example/", "body": "<html>" + "word " * 300 + "</html>", "error": ""}
+        orig = safefetch.fetch
+        try:
+            safefetch.fetch = lambda url, deadline=None, accept_lang="en", ua=None: dict(page, status=403) if (ua and "ClaudeBot" in ua) else page
+            out = doorcheck.run("https://s.example")
+            c = {x["id"]: x for x in out["checks"]}["bot_access"]
+            self.assertEqual((c["status"], c["blocked"]), ("fail", ["ClaudeBot"]))
+            safefetch.fetch = lambda url, deadline=None, accept_lang="en", ua=None: page
+            self.assertEqual({x["id"]: x for x in doorcheck.run("https://s.example")["checks"]}["bot_access"]["status"], "pass")
+        finally:
+            safefetch.fetch = orig
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
