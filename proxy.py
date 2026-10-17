@@ -7,8 +7,8 @@ from urllib.parse import urlparse
 
 UPSTREAM = os.environ.get("APP_UPSTREAM", "").rstrip("/")
 ROUTES = {
-    "GET": re.compile(r"/(instant|plans|dashboard|account|api/account/export|api/snapshot/(\d+|[A-Za-z0-9_-]{16,64})|login/[A-Za-z0-9_-]{20,64}|recount/[A-Za-z0-9_-]{20,64})"),
-    "POST": re.compile(r"/(api/snapshot|api/account/(link|delete)|api/portal|api/checkout|login/[A-Za-z0-9_-]{20,64})"),
+    "GET": re.compile(r"/(instant|plans|thanks|dashboard|account|report/[A-Za-z0-9_-]{20,64}|api/account/export|api/snapshot/(\d+|[A-Za-z0-9_-]{16,64})|login/[A-Za-z0-9_-]{20,64}|recount/[A-Za-z0-9_-]{20,64})"),
+    "POST": re.compile(r"/(api/snapshot|api/stripe/webhook|api/account/(link|delete)|api/portal|api/checkout|login/[A-Za-z0-9_-]{20,64})"),
 }
 PASS = ("Content-Type", "Cache-Control", "Set-Cookie", "Location", "Referrer-Policy", "Content-Security-Policy")
 _H = {"t": 0.0, "u": "", "v": None}
@@ -41,7 +41,7 @@ def handle(h, method):
             _send(h, 413, {}, b'{"error":"too large"}'); return True
         body = h.rfile.read(n) if n else b""
     hdr = {"X-Forwarded-For": h.ip()}
-    for k in ("Content-Type", "Cookie"):
+    for k in ("Content-Type", "Cookie", "Stripe-Signature"):
         if h.headers.get(k): hdr[k] = h.headers[k]
     try:
         code, rh, rb = _call(urllib.request.Request(UPSTREAM + h.path, body, hdr, method=method), 20)
