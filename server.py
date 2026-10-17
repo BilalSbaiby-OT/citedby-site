@@ -293,7 +293,7 @@ def render_home(lang):  # the assistant list is read on every request: a stale t
 
 ROUTES = {"/check": "check.html", "/fr/check": "fr/check.html", "/nl/check": "nl/check.html",
           "/legal": "legal.html", "/privacy": "privacy.html"}
-CSP = ("default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; script-src 'self'; connect-src 'self' https://eu.i.posthog.com; "
+CSP = ("default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; script-src 'self'; connect-src 'self'; "
        "base-uri 'self'; form-action 'self' https://buy.stripe.com mailto:; frame-ancestors 'none'")
 
 
@@ -397,6 +397,10 @@ class H(BaseHTTPRequestHandler):
             n = int(self.headers.get("Content-Length") or 0)
         except ValueError:
             n = 0
+        if u.path == "/riq-e":  # RES-1071: same-origin relay to PostHog, always 204
+            if 0 < n <= 8192:
+                analytics.relay(self.rfile.read(n), self.ip(), self.headers.get("User-Agent", ""))
+            return self.out(204, b"", "application/json")
         if n > 4096:
             return self.out(413, b'{"ok":false}', "application/json")
         raw = self.rfile.read(n) if n else b""

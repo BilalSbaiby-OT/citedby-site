@@ -11,7 +11,7 @@
   try { internal = localStorage.getItem("riq_internal") === "1" || /(?:^|;\s*)riq_internal=1/.test(document.cookie); } catch (e) {}  // team browsers (read only)
   var off = !key || internal || navigator.doNotTrack === "1" || window.doNotTrack === "1" || navigator.msDoNotTrack === "1" || navigator.globalPrivacyControl === true;
   var EVENTS = { check_started: 1, check_finished: 1, signup: 1, checkout_started: 1, paid: 1, mock_started: 1, mock_finished: 1, checkout_completed: 1, cta_click: 1 };
-  var URL_ = "https://eu.i.posthog.com/i/v0/e/";
+  var URL_ = (s && s.getAttribute("data-endpoint")) || "https://eu.i.posthog.com/i/v0/e/";  // same-origin relay (/riq-e) so blockers do not drop it and CSP stays connect-src self
   function base() {
     var q = new URLSearchParams(location.search), p = {
       $cookieless_mode: true, $raw_user_agent: navigator.userAgent, $lib: "riq-a", $lib_version: "1",
