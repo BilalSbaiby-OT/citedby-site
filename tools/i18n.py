@@ -1,6 +1,6 @@
 # Copy for /check in EN, FR, NL. Page-level strings are rendered into HTML; "js" strings go to the page as JSON for check.js.
 # DE and ES come next: add a language here, a row in LANG_LABELS, and mail text in server.py.
-PRICE_URL = "https://buy.stripe.com/8x2dR17ri7C06p44cX0oM08"
+PRICE_URL = "https://buy.stripe.com/3cI8wHgJK4q9atr9Y98N200"
 COUNTRIES = ["BE", "FR", "NL", "IE", "DE", "ES", "GB", "OTHER"]
 NICHES = ["coffee", "tea", "beauty", "mattress", "supplements", "other"]
 S = {

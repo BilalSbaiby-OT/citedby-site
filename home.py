@@ -5,7 +5,7 @@ FAQ, JSON-LD, meta). An empty list renders the fallback of OFFER-V3.md 3.2 and s
 import datetime, html, json, os
 
 E = html.escape
-FIX_URL = "https://buy.stripe.com/8x2dR17ri7C06p44cX0oM08"
+FIX_URL = "https://buy.stripe.com/3cI8wHgJK4q9atr9Y98N200"
 MAX_AGE = datetime.timedelta(hours=24)
 MONTHS_FR = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."]
 MONTHS_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
@@ -88,7 +88,7 @@ T = {
   g_no="We do not promise rankings, traffic or sales. Nobody controls what an assistant answers.",
   cap="We take 5 Fix Packs a month. If this month is full, we email you your start date before any work begins, and refund in full if you prefer.",
   after_h="After you pay",
-  after=["Stripe emails your receipt. It shows our operating name, Resale IQ.", "We email you for access, or for your choice of ready-to-paste files.",
+  after=["Stripe emails your receipt.", "We email you for access, or for your choice of ready-to-paste files.",
          "The 7 days start the day you give us access, or the day you tell us you want the files. If we miss the date, the refund is automatic.",
          "At day 30 you get the recount, before and after for each assistant, with the raw answers. Nothing renews. After the recount you can keep going with CitedBy Monthly (€149 a month, cancel by replying to any report). If you do nothing, you are not charged again."],
   fc_h="Free check", fc=["16 answers about your category, in your language", "Who is named instead of you", "What the assistants say about you by name", "2 to 3 fixes, checked against your site"],
@@ -96,7 +96,7 @@ T = {
   mo=["Your buyer questions re-run every month on every assistant we measure", "Who gained and who lost, competitor by competitor", "Alerts when an assistant gets a fact about you wrong",
       "2 changes made for you every month, plus 1 listing request", "A one-page report in your language"],
   mo_note="We send the link with your day-30 recount. Cancel anytime by replying to any report.",
-  stripe="Secure checkout by Stripe. Your receipt shows our operating company, Resale IQ.",
+  stripe="Secure checkout by Stripe.",
   faq_h="FAQ",
   faq=[("Which assistants do you check?", "The ones we can ask through an API with web search switched on, on the day you order. The line at the top of this page is that list, with its date. We do not script the chat apps themselves: their consumer terms forbid automated extraction, and we will not build your results on an account that can be banned. When we add an assistant, it joins your recount at no charge."),
        ("Is an API answer what my buyer sees in the app?", "Not always. An API call has no chat history and no personal profile, and the app can answer differently. That is why we ask every question twice, show you each answer and count the same way before and after. The count shows change. It does not forecast your traffic."),
@@ -108,7 +108,7 @@ T = {
        ("Is Monthly a contract?", "No. You choose it after your day-30 recount, it is billed monthly, and you cancel by replying to any report. Your Fix Pack never turns into Monthly by itself.")],
   faq_multi=("Why several assistants?", "A shop can be named by one assistant and missed by another, so each gets its own count. Your day-30 recount shows which one you moved on."),
   behind_h="Who is behind this",
-  behind="CitedBy is a small independent service run from Spain. We sell the fixes, which is why every audit lists the sites each assistant linked in each try: you can check our count yourself. Your Stripe receipt shows our operating name, Resale IQ.",
+  behind="CitedBy is a small independent service run from Spain. We sell the fixes, which is why every audit lists the sites each assistant linked in each try: you can check our count yourself.",
   legal="Legal notice", cta_h="See where you stand, free", cta="Send your shop address and get 16 answers about your category, who is named instead of you, and 2 to 3 fixes.",
   foot=(("/data", "Data"), ("/terms", "Terms"), ("/refund", "Refunds"), ("/contact", "Contact"), ("/legal", "Legal notice"), ("/privacy", "Privacy")),
   svc="CitedBy: AI assistant visibility audit and fixes", svc_type="AI search visibility for online shops", free_offer="Free check", fp_offer="Fix Pack (paid once)", locale="en",
@@ -153,7 +153,7 @@ T = {
   g_no="Nous ne promettons ni classement, ni trafic, ni ventes. Personne ne contrôle ce qu'un assistant répond.",
   cap="Nous prenons 5 Fix Packs par mois. Si le mois est complet, nous vous écrivons votre date de début avant tout travail, et nous remboursons en totalité si vous préférez.",
   after_h="Après le paiement",
-  after=["Stripe vous envoie le reçu. Il porte notre nom d'exploitation, Resale IQ.", "Nous vous écrivons pour obtenir l'accès, ou pour que vous choisissiez les fichiers prêts à coller.",
+  after=["Stripe vous envoie le reçu.", "Nous vous écrivons pour obtenir l'accès, ou pour que vous choisissiez les fichiers prêts à coller.",
          "Les 7 jours commencent le jour où vous donnez l'accès, ou le jour où vous nous dites que vous voulez les fichiers. Si nous manquons la date, le remboursement est automatique.",
          "À 30 jours, vous recevez le recomptage, avant et après pour chaque assistant, avec les réponses brutes. Rien ne se renouvelle. Après le recomptage, vous pouvez continuer avec CitedBy Monthly (149 € par mois, résiliation par simple réponse à un rapport). Si vous ne faites rien, vous n'êtes plus débité."],
   fc_h="Test gratuit", fc=["16 réponses sur votre catégorie, dans votre langue", "Qui est cité à votre place", "Ce que les assistants disent de vous quand on les interroge par votre nom", "2 à 3 corrections, vérifiées sur votre site"],
@@ -161,7 +161,7 @@ T = {
   mo=["Les questions de vos acheteurs relancées chaque mois sur chaque assistant que nous mesurons", "Qui gagne et qui perd, concurrent par concurrent", "Des alertes quand un assistant se trompe sur un fait vous concernant",
       "2 changements faits pour vous chaque mois, plus 1 demande de référencement", "Un rapport d'une page dans votre langue"],
   mo_note="Nous envoyons le lien avec votre recomptage à 30 jours. Résiliation à tout moment en répondant à un rapport.",
-  stripe="Paiement sécurisé par Stripe. Votre reçu porte le nom de notre société d'exploitation, Resale IQ.",
+  stripe="Paiement sécurisé par Stripe.",
   faq_h="FAQ",
   faq=[("Quels assistants vérifiez-vous ?", "Ceux que nous pouvons interroger par une API, recherche web activée, le jour de votre commande. La ligne en haut de cette page est cette liste, avec sa date. Nous ne pilotons pas les applications de chat elles-mêmes : leurs conditions grand public interdisent l'extraction automatisée, et nous ne bâtirons pas vos résultats sur un compte qui peut être banni. Quand nous ajoutons un assistant, il rejoint votre recomptage sans frais."),
        ("Une réponse d'API est-elle ce que voit mon acheteur dans l'application ?", "Pas toujours. Un appel d'API n'a ni historique de conversation ni profil personnel, et l'application peut répondre autrement. C'est pourquoi nous posons chaque question deux fois, vous montrons chaque réponse et comptons de la même façon avant et après. Le compte montre un changement. Il ne prévoit pas votre trafic."),
@@ -173,7 +173,7 @@ T = {
        ("Monthly est-il un engagement ?", "Non. Vous le choisissez après votre recomptage à 30 jours, il est facturé au mois et vous résiliez en répondant à un rapport. Votre Fix Pack ne devient jamais Monthly tout seul.")],
   faq_multi=("Pourquoi plusieurs assistants ?", "Une boutique peut être citée par un assistant et absente d'un autre : chacun a donc son compte. Votre recomptage à 30 jours montre sur lequel vous avez progressé."),
   behind_h="Qui est derrière CitedBy",
-  behind="CitedBy est un petit service indépendant exploité depuis l'Espagne. Nous vendons les corrections, c'est pourquoi chaque audit liste les sites que chaque assistant a liés à chaque essai : vous pouvez vérifier notre compte vous-même. Votre reçu Stripe porte le nom de notre société d'exploitation, Resale IQ.",
+  behind="CitedBy est un petit service indépendant exploité depuis l'Espagne. Nous vendons les corrections, c'est pourquoi chaque audit liste les sites que chaque assistant a liés à chaque essai : vous pouvez vérifier notre compte vous-même.",
   legal="Mentions légales", cta_h="Voyez où vous en êtes, gratuitement", cta="Envoyez l'adresse de votre boutique et recevez 16 réponses sur votre catégorie, qui est cité à votre place, et 2 à 3 corrections.",
   foot=(("/data", "Données"), ("/terms", "Conditions"), ("/refund", "Remboursements"), ("/contact", "Contact"), ("/legal", "Mentions légales"), ("/privacy", "Confidentialité")),
   svc="CitedBy : audit et corrections de visibilité dans les assistants IA", svc_type="Visibilité IA pour boutiques en ligne", free_offer="Test gratuit", fp_offer="Fix Pack (payé une fois)", locale="fr",
